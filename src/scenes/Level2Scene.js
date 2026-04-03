@@ -37,9 +37,9 @@ class Level2Scene extends Phaser.Scene {
     const ground = this.platforms.create(width / 2, height - 16, 'ground_dark');
     ground.setDisplaySize(width, 32).refreshBody();
 
-    this.platforms.create(120,  340, 'platform_dark'); // vlevo nízká
+    this.platforms.create(250,  320, 'platform_dark'); // vlevo nízká (posunutá od spawnu)
     this.platforms.create(580,  185, 'platform_dark'); // vpravo vysoko
-    this.platforms.create(240,  170, 'platform_dark'); // tajná (bonus srdíčko)
+    this.platforms.create(280,  170, 'platform_dark'); // tajná (bonus srdíčko)
 
     // -------------------------------------------------------
     // POHYBUJÍCÍ SE PLATFORMY (3 ks — GDD spec)
@@ -86,7 +86,7 @@ class Level2Scene extends Phaser.Scene {
     // Malé kletby
     this.smallCurses.add(new SmallCurse(this, 220,  height - 60));
     this.smallCurses.add(new SmallCurse(this, 420,  height - 60));
-    this.smallCurses.add(new SmallCurse(this, 140,  315));       // na statické platformě
+    this.smallCurses.add(new SmallCurse(this, 260,  295));       // na statické platformě
     this.smallCurses.add(new SmallCurse(this, 560,  160));       // na vysoké platformě
     this.smallCurses.add(new SmallCurse(this, 620,  height - 60));
 
@@ -95,7 +95,7 @@ class Level2Scene extends Phaser.Scene {
     this.largeCurses.add(new LargeCurse(this, 580,  height - 70));
 
     // Čarodějové na vyvýšených pozicích
-    this.sorcerers.add(new Sorcerer(this, 140,  315));
+    this.sorcerers.add(new Sorcerer(this, 270,  295));
     this.sorcerers.add(new Sorcerer(this, 600,  160));
     this.sorcerers.add(new Sorcerer(this, 700,  height - 60));
 

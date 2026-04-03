@@ -69,6 +69,24 @@ class HUD {
     }).setScrollFactor(0).setDepth(depth + 1).setVisible(true);
 
     // -------------------------------------------------------
+    // SCREENSHOT tlačítko — vedle skóre vpravo nahoře
+    // -------------------------------------------------------
+    const ssBtn = scene.add.text(755, 16, '[📸]', {
+      fontSize: '13px', fill: '#F0F0FF', fontFamily: 'monospace'
+    }).setOrigin(1, 0).setScrollFactor(0).setDepth(depth).setInteractive({ useHandCursor: true });
+
+    ssBtn.on('pointerover', () => ssBtn.setStyle({ fill: '#FFD700' }));
+    ssBtn.on('pointerout',  () => ssBtn.setStyle({ fill: '#F0F0FF' }));
+    ssBtn.on('pointerdown', () => {
+      scene.game.renderer.snapshot((image) => {
+        const link = document.createElement('a');
+        link.href = image.src;
+        link.download = 'gojo-infinity.png';
+        link.click();
+      });
+    });
+
+    // -------------------------------------------------------
     // SKÓRE — pravý horní roh
     // -------------------------------------------------------
     this.scoreText = scene.add.text(790, 16, 'Skóre: 0', {

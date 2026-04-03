@@ -46,7 +46,7 @@ class Level3Scene extends Phaser.Scene {
     const ground = this.platforms.create(width / 2, height - 16, 'ground_dark');
     ground.setDisplaySize(width, 32).refreshBody();
 
-    this.platforms.create(120, 350, 'platform_dark');  // nízká vlevo
+    this.platforms.create(270, 340, 'platform_dark');  // nízká (posunutá od spawnu)
     this.platforms.create(580, 190, 'platform_dark');  // vysoká uprostřed
 
     // -------------------------------------------------------
@@ -293,9 +293,13 @@ class Level3Scene extends Phaser.Scene {
   onSukunaPhase2()  { this.hud.showWarning('α1 ZRYCHLUJE!', 0xFF4500); }
   onSukunaKilled(x, y) {
     this.onEnemyKilled(x, y, 1000); this.sukuna = null;
+    // GDD: α1 se garantovaně objeví 2× — druhý přijde po 10s
     if (this.sukunaCount < 2) {
-      this.time.delayedCall(5000, () => {
-        if (this.sukunaCount < 2) this.spawnSukuna(400, this.scale.height - 80);
+      this.time.delayedCall(10000, () => {
+        if (this.sukunaCount < 2) {
+          this.spawnSukuna(400, this.scale.height - 80);
+          this.hud.showWarning('α1 SE VRÁTIL!', 0xFF0000);
+        }
       });
     }
     if (!this.bossSpawned) this.time.delayedCall(3000, () => this.spawnBoss());
