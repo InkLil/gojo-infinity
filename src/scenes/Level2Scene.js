@@ -16,18 +16,30 @@ class Level2Scene extends Phaser.Scene {
     this.movingPlats   = []; // pohybující se platformy — aktualizujeme v update()
 
     // -------------------------------------------------------
-    // POZADÍ — temný les
+    // PARALLAX POZADÍ — temný les (3 vrstvy)
+    // Vrstva 1 = vzdálené mlhavé stromy (nejpomalejší)
+    // Vrstva 2 = fialové stromy ve středu
+    // Vrstva 3 = tmavé blízké stromy (nejrychlejší)
+    //
+    // Obrázky jsou 320×180 px → scale 2.5 = 800×450 (přesně hra)
+    // Vrstvy 2 a 3 mají průhledné pozadí → správně se vrství
     // -------------------------------------------------------
-    this.add.rectangle(width / 2, height / 2, width, height, 0x1a1a2e);
+    const bgScale = height / 180;  // 320×180 → 800×450 při scale 2.5
 
-    // Stromy v pozadí (dekorativní)
-    [[60,380],[160,360],[340,390],[500,370],[650,380],[780,360]].forEach(([x,y]) => {
-      this.add.triangle(x, y, 0,0, 40,0, 20,-80, 0x166534, 0.7);
-      this.add.rectangle(x + 10, y + 10, 12, 30, 0x78350F, 0.8);
-    });
+    this.bg1 = this.add.tileSprite(0, 0, width, height, 'forest_layer1')
+      .setOrigin(0, 0)
+      .setTileScale(bgScale, bgScale);
 
-    // Fialová mlha u země
-    this.add.rectangle(width / 2, height - 60, width, 80, 0x6B21A8, 0.1);
+    this.bg2 = this.add.tileSprite(0, 0, width, height, 'forest_layer2')
+      .setOrigin(0, 0)
+      .setTileScale(bgScale, bgScale);
+
+    this.bg3 = this.add.tileSprite(0, 0, width, height, 'forest_layer3')
+      .setOrigin(0, 0)
+      .setTileScale(bgScale, bgScale);
+
+    // Fialová mlha u země (zachováme atmosféru)
+    this.add.rectangle(width / 2, height - 60, width, 80, 0x6B21A8, 0.15);
 
     // -------------------------------------------------------
     // STATICKÉ PLATFORMY
@@ -255,7 +267,12 @@ class Level2Scene extends Phaser.Scene {
     this.time.delayedCall(800, () => { this.scene.start('Level3Scene'); });
   }
 
-  update() {
+  update(time, delta) {
+    // Parallax — 3 vrstvy lesa, každá jiná rychlost
+    this.bg1.tilePositionX += 5  * (delta / 1000);   // vzdálené stromy — 5 px/s
+    this.bg2.tilePositionX += 15 * (delta / 1000);   // fialové stromy — 15 px/s
+    this.bg3.tilePositionX += 30 * (delta / 1000);   // blízké stromy — 30 px/s
+
     this.gojo.update();
     this.hud.update(this.score);
     this._updateMovingPlats();

@@ -16,19 +16,16 @@ class HUD {
     // -------------------------------------------------------
     this.hearts = [];
     for (let i = 0; i < 3; i++) {
-      // Pozadí srdíčka (tmavé = ztraceno)
+      // Tmavé pozadí (vždy viditelné)
       const bg = scene.add.rectangle(20 + i * 28, 20, 20, 20, 0x333333)
         .setScrollFactor(0).setDepth(depth);
 
-      // Popředí srdíčka (Gojo bílá = žije)
-      const fill = scene.add.rectangle(20 + i * 28, 20, 18, 18, 0xF0F0FF)
-        .setScrollFactor(0).setDepth(depth + 1);
+      // Gojo portrét — plný = žije, šedý tint = ztraceno
+      const portrait = scene.add.image(20 + i * 28, 20, 'gojo_portrait')
+        .setScrollFactor(0).setDepth(depth + 1)
+        .setDisplaySize(18, 18);
 
-      // Oranžový bod = Gojo odznak (detail)
-      const badge = scene.add.circle(20 + i * 28 - 4, 22, 2, 0xEA580C)
-        .setScrollFactor(0).setDepth(depth + 2);
-
-      this.hearts.push({ bg, fill, badge });
+      this.hearts.push({ bg, portrait });
     }
 
     // -------------------------------------------------------
@@ -132,8 +129,7 @@ class HUD {
     // --- Srdíčka ---
     for (let i = 0; i < 3; i++) {
       const alive = i < gojo.hp;
-      this.hearts[i].fill.setVisible(alive);
-      this.hearts[i].badge.setVisible(alive);
+      this.hearts[i].portrait.setTint(alive ? 0xFFFFFF : 0x444444);
     }
 
     // --- Nekonečno bar ---

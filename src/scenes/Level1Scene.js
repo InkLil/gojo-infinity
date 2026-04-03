@@ -16,14 +16,26 @@ class Level1Scene extends Phaser.Scene {
     this.levelComplete = false;
 
     // -------------------------------------------------------
-    // POZADÍ — japonská vesnice, jasný den (#87CEEB)
+    // PARALLAX POZADÍ — japonská vesnice (2 vrstvy)
+    // TileSprite = Phaser objekt který opakuje obrázek do šířky
+    // Každá vrstva dostane jinou rychlost → vznikne dojem hloubky
+    //
+    // Vrstva 1 (vzdálená) = mraky + světlé nebe → pohybuje se POMALU (8 px/s)
+    // Vrstva 2 (bližší)   = tmavší mraky      → pohybuje se RYCHLEJI (20 px/s)
+    //
+    // scale = 450/272 ≈ 1.655 → natáhne obrázek (272px) na výšku hry (450px)
     // -------------------------------------------------------
-    this.add.rectangle(width / 2, height / 2, width, height, 0x87CEEB);
+    const bgScale = height / 272;  // 496×272 → škálujeme na výšku hry
 
-    // Dekorativní mraky
-    this.add.ellipse(120, 80,  120, 40, 0xFFFFFF, 0.8);
-    this.add.ellipse(400, 60,  160, 45, 0xFFFFFF, 0.7);
-    this.add.ellipse(680, 90,  100, 35, 0xFFFFFF, 0.8);
+    // Vrstva 1 — vzdálená (světlé mraky, pomalu)
+    this.bg1 = this.add.tileSprite(0, 0, width, height, 'village_bg1')
+      .setOrigin(0, 0)
+      .setTileScale(bgScale, bgScale);
+
+    // Vrstva 2 — bližší (modré mraky, rychleji)
+    this.bg2 = this.add.tileSprite(0, 0, width, height, 'village_bg2')
+      .setOrigin(0, 0)
+      .setTileScale(bgScale, bgScale);
 
     // -------------------------------------------------------
     // PLATFORMY — tutoriál skoku (jednoduché → obtížnější)
@@ -184,7 +196,12 @@ class Level1Scene extends Phaser.Scene {
     this.time.delayedCall(800, () => { this.scene.start('Level2Scene'); });
   }
 
-  update() {
+  update(time, delta) {
+    // Parallax scrolling — vzdálená vrstva pomaleji, bližší rychleji
+    // delta = ms od posledního snímku → zajistí stejnou rychlost bez ohledu na FPS
+    this.bg1.tilePositionX += 8  * (delta / 1000);   // 8 px/s
+    this.bg2.tilePositionX += 20 * (delta / 1000);   // 20 px/s
+
     this.gojo.update();
     this.hud.update(this.score);
 

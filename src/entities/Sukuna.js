@@ -3,7 +3,7 @@
 
 class Sukuna extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
-    super(scene, x, y, 'sukuna_placeholder');
+    super(scene, x, y, 'sukuna_spritesheet');
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
@@ -20,9 +20,13 @@ class Sukuna extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(28, 44);
     this.body.setOffset(2, 4);
 
+    this._dying = false;
+
     // Spawn efekt — červená záře + varování
     this.setTint(0xFF0000);
     scene.time.delayedCall(600, () => { if (this.active) this.clearTint(); });
+
+    this.play('sukuna_idle');
 
     // Oznámení scéně že Sukuna se zjevil
     scene.events.emit('sukunaSpawned');
@@ -51,31 +55,27 @@ class Sukuna extends Phaser.Physics.Arcade.Sprite {
   // Cleave — vlna energie po celé podlaze
   doCleave() {
     this.scene.events.emit('sukunaCleave', this.x, this.y);
-
-    // Vizuální animace: Sukuna se červeně rozsvítí při útoku
-    this.setTint(0x8B0000);
-    this.scene.time.delayedCall(300, () => { if (this.active) this.clearTint(); });
+    this.play('sukuna_cleave');
+    this.once('animationcomplete-sukuna_cleave', () => { if (this.active && !this._dying) this.play('sukuna_idle', true); });
   }
 
-  // Malevolent Shrine — 3 ohnivé šípy
   doShrine() {
     const gojo = this.scene.gojo;
     if (!gojo) return;
 
     const dirX = gojo.x > this.x ? 1 : -1;
     this.scene.events.emit('sukunaShrine', this.x, this.y - 10, dirX);
-
-    this.setTint(0xFF4500);
-    this.scene.time.delayedCall(300, () => { if (this.active) this.clearTint(); });
+    this.play('sukuna_shrine');
+    this.once('animationcomplete-sukuna_shrine', () => { if (this.active && !this._dying) this.play('sukuna_idle', true); });
   }
 
   takeDamage(amount = 1) {
     this.hp -= amount;
 
-    this.setTint(0xFF4444);
-    this.scene.time.delayedCall(150, () => { if (this.active) this.clearTint(); });
+    this.play('sukuna_hit');
+    this.once('animationcomplete-sukuna_hit', () => { if (this.active && !this._dying) this.play('sukuna_idle', true); });
 
-    // Fáze 2: HP ≤ 3 — zrychlení, kratší cooldown
+    // Fáze 2: HP ≤ 5 — zrychlení, kratší cooldown
     if (this.hp <= 5 && !this.isPhase2) {
       this.isPhase2 = true;
       this.speed = 140;
@@ -94,19 +94,30 @@ class Sukuna extends Phaser.Physics.Arcade.Sprite {
 
     if (this.hp <= 0) {
       if (this.attackTimer) this.attackTimer.remove();
-      this.scene.events.emit('sukunaKilled', this.x, this.y);
-      this.destroy();
+      this._dying = true;
+      this.body.setVelocity(0);
+      this.play('sukuna_death');
+      this.once('animationcomplete-sukuna_death', () => {
+        this.scene.events.emit('sukunaKilled', this.x, this.y);
+        this.destroy();
+      });
     }
   }
 
   update() {
     if (!this.active) return;
+    if (this._dying) return;
     const gojo = this.scene.gojo;
     if (!gojo || !gojo.active) return;
 
-    // Pomalu kráčí k hráči
     const dirX = gojo.x > this.x ? 1 : -1;
     this.setVelocityX(this.speed * dirX);
     this.setFlipX(dirX === -1);
+
+    // Chůze vs. idle — jen pokud nehraje útočná animace
+    const cur = this.anims.currentAnim ? this.anims.currentAnim.key : '';
+    if (cur === 'sukuna_idle' || cur === 'sukuna_walk') {
+      this.play('sukuna_walk', true);
+    }
   }
 }

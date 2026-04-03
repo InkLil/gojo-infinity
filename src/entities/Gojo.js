@@ -5,7 +5,7 @@
 
 class Gojo extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
-    super(scene, x, y, 'gojo_placeholder');
+    super(scene, x, y, 'gojo_spritesheet');
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -50,6 +50,13 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
     // Zabraňuje opakování při držení klávesy
     this.zPressed    = false;
     this.xPressed    = false;
+
+    // --- Animační příznaky ---
+    this._hitAnim    = false;
+    this._firingAnim = false;
+    this._dyingAnim  = false;
+
+    this.play('gojo_idle');
   }
 
   // --- Veřejná metoda: zásah nepřítelem ---
@@ -75,15 +82,24 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
     this.invincible = true;
     this.scene.time.delayedCall(1000, () => { this.invincible = false; });
 
-    // Červené bliknutí při zásahu
-    this.setTint(0xFF0000);
-    this.scene.time.delayedCall(200, () => {
-      if (!this.infinityActive) this.clearTint();
-    });
+    // Animace + červené bliknutí při zásahu
+    if (this.hp > 0) {
+      this._hitAnim = true;
+      this.play('gojo_hit');
+      this.setTint(0xFF0000);
+      this.once('animationcomplete-gojo_hit', () => {
+        this._hitAnim = false;
+        if (!this.infinityActive) this.clearTint();
+      });
+    }
 
     // Smrt
     if (this.hp <= 0) {
-      this.scene.scene.start('GameOverScene');
+      this._dyingAnim = true;
+      this.play('gojo_death');
+      this.once('animationcomplete-gojo_death', () => {
+        this.scene.scene.start('GameOverScene');
+      });
     }
   }
 
@@ -146,11 +162,39 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
 
     // --- Duté fialové [X] — výstřel ---
     if (this.xKey.isDown && !this.xPressed && now >= this.purpleReadyAt) {
-      // Informujeme scénu ať spawne projektil (scéna řídí fyziku projektilů)
       this.scene.events.emit('fireHollowPurple', this.x, this.y, this.flipX);
       this.purpleReadyAt = now + this.purpleCooldownMs;
       this.xPressed = true;
+      this._firingAnim = true;
+      this.play('gojo_hollow_purple');
+      this.once('animationcomplete-gojo_hollow_purple', () => { this._firingAnim = false; });
     }
     if (!this.xKey.isDown) this.xPressed = false;
+
+    this._playAnimation();
+  }
+
+  _playAnimation() {
+    if (this._dyingAnim) return;
+    if (this._hitAnim)   { this.play('gojo_hit', true); return; }
+    if (this._firingAnim){ this.play('gojo_hollow_purple', true); return; }
+
+    const onGround = this.body.blocked.down;
+    const vy       = this.body.velocity.y;
+
+    if (this.infinityActive) {
+      this.play('gojo_infinity', true);
+      return;
+    }
+    if (!onGround) {
+      if (vy < -50) this.play('gojo_jump', true);
+      else          this.play('gojo_fall', true);
+      return;
+    }
+    if (Math.abs(this.body.velocity.x) > 10) {
+      this.play('gojo_run', true);
+    } else {
+      this.play('gojo_idle', true);
+    }
   }
 }

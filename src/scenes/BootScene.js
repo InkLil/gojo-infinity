@@ -8,8 +8,30 @@ class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Všechny textury generujeme tady jednou — Phaser je cachuje globálně
     this._makeTextures();
+    this.load.spritesheet('gojo_spritesheet', 'assets/sprites/gojo_spritesheet.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('sukuna_spritesheet', 'assets/sprites/sukuna_spritesheet.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.image('gojo_portrait', 'assets/sprites/gojo_portrait.png');
+
+    // --- Pozadí Level 1 — vesnice (496×272 px) ---
+    this.load.image('village_bg1', 'assets/backgrounds/village/Background_1.png');
+    this.load.image('village_bg2', 'assets/backgrounds/village/Background_2.png');
+
+    // --- Pozadí Level 2 — les (320×180 px) ---
+    this.load.image('forest_layer1', 'assets/backgrounds/forest/background_layer_1.png');
+    this.load.image('forest_layer2', 'assets/backgrounds/forest/background_layer_2.png');
+    this.load.image('forest_layer3', 'assets/backgrounds/forest/background_layer_3.png');
+
+    // --- Pozadí Level 3 — Tokio (různé šířky, 272 px výška) ---
+    this.load.image('tokyo_back',   'assets/backgrounds/tokyo/back.png');
+    this.load.image('tokyo_middle', 'assets/backgrounds/tokyo/middle.png');
+    this.load.image('tokyo_fore',   'assets/backgrounds/tokyo/foreground.png');
+
+    // --- Hudba Level 3 ---
+    this.load.audio('cyberpunk_music', [
+      'assets/sounds/cyberpunk-street.ogg',
+      'assets/sounds/cyberpunk-street.mp3'
+    ]);
   }
 
   create() {
@@ -23,18 +45,34 @@ class BootScene extends Phaser.Scene {
       fontSize: '16px', fill: '#F0F0FF', fontFamily: 'monospace'
     }).setOrigin(0.5);
 
+    this._createAnimations();
     this.time.delayedCall(1200, () => { this.scene.start('MenuScene'); });
+  }
+
+  _createAnimations() {
+    const A = this.anims;
+    // Gojo: idle 0-3 | run 4-9 | jump 10-12 | fall 13-14 | land 15-16
+    //       infinity 17-21 | hollow_purple 22-27 | hit 28-30 | death 31-35
+    A.create({ key: 'gojo_idle',          frames: A.generateFrameNumbers('gojo_spritesheet', { start: 0,  end: 3  }), frameRate: 8,  repeat: -1 });
+    A.create({ key: 'gojo_run',           frames: A.generateFrameNumbers('gojo_spritesheet', { start: 4,  end: 9  }), frameRate: 12, repeat: -1 });
+    A.create({ key: 'gojo_jump',          frames: A.generateFrameNumbers('gojo_spritesheet', { start: 10, end: 12 }), frameRate: 10, repeat: 0  });
+    A.create({ key: 'gojo_fall',          frames: A.generateFrameNumbers('gojo_spritesheet', { start: 13, end: 14 }), frameRate: 8,  repeat: -1 });
+    A.create({ key: 'gojo_land',          frames: A.generateFrameNumbers('gojo_spritesheet', { start: 15, end: 16 }), frameRate: 14, repeat: 0  });
+    A.create({ key: 'gojo_infinity',      frames: A.generateFrameNumbers('gojo_spritesheet', { start: 17, end: 21 }), frameRate: 10, repeat: -1 });
+    A.create({ key: 'gojo_hollow_purple', frames: A.generateFrameNumbers('gojo_spritesheet', { start: 22, end: 27 }), frameRate: 14, repeat: 0  });
+    A.create({ key: 'gojo_hit',           frames: A.generateFrameNumbers('gojo_spritesheet', { start: 28, end: 30 }), frameRate: 12, repeat: 0  });
+    A.create({ key: 'gojo_death',         frames: A.generateFrameNumbers('gojo_spritesheet', { start: 31, end: 35 }), frameRate: 8,  repeat: 0  });
+    // Sukuna: idle 0-3 | walk 4-7 | cleave 8-12 | shrine 13-18 | hit 19-20 | death 21-25
+    A.create({ key: 'sukuna_idle',   frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 0,  end: 3  }), frameRate: 6,  repeat: -1 });
+    A.create({ key: 'sukuna_walk',   frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 4,  end: 7  }), frameRate: 10, repeat: -1 });
+    A.create({ key: 'sukuna_cleave', frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 8,  end: 12 }), frameRate: 14, repeat: 0  });
+    A.create({ key: 'sukuna_shrine', frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 13, end: 18 }), frameRate: 14, repeat: 0  });
+    A.create({ key: 'sukuna_hit',    frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 19, end: 20 }), frameRate: 10, repeat: 0  });
+    A.create({ key: 'sukuna_death',  frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 21, end: 25 }), frameRate: 8,  repeat: 0  });
   }
 
   _makeTextures() {
     const g = (w, h) => this.make.graphics({ x: 0, y: 0, add: false });
-
-    // --- Gojo placeholder (32×48) ---
-    const gojoGfx = g();
-    gojoGfx.fillStyle(0xF0F0FF); gojoGfx.fillRect(0, 0, 32, 48);
-    gojoGfx.fillStyle(0x1E1E3F); gojoGfx.fillRect(6, 12, 20, 8);   // brýle
-    gojoGfx.fillStyle(0xEA580C); gojoGfx.fillCircle(10, 28, 4);    // odznak
-    gojoGfx.generateTexture('gojo_placeholder', 32, 48); gojoGfx.destroy();
 
     // --- Platforma (200×20) ---
     const platGfx = g();
@@ -122,19 +160,6 @@ class BootScene extends Phaser.Scene {
     bossGfx.fillStyle(0x9B59B6); bossGfx.fillCircle(35, 20, 12); // koruna
     bossGfx.fillStyle(0xFF0000); bossGfx.fillRect(22, 44, 26, 5); // ústa
     bossGfx.generateTexture('boss_placeholder', 70, 70); bossGfx.destroy();
-
-    // --- Sukuna / α1 placeholder (32×48) ---
-    // Bílé kimono, černý obi, tmavé vlasy, červené tetování (GDD paleta)
-    const sukGfx = g();
-    sukGfx.fillStyle(0xEFEFEF); sukGfx.fillRect(0, 0, 32, 48);   // kimono (bílé)
-    sukGfx.fillStyle(0x1a1a1a); sukGfx.fillRect(8, 0, 16, 14);   // tmavé vlasy
-    sukGfx.fillStyle(0xF0D9C0); sukGfx.fillRect(10, 4, 12, 10);  // pleť obličeje
-    sukGfx.fillStyle(0x222222); sukGfx.fillRect(4, 22, 24, 6);   // obi pás
-    sukGfx.fillStyle(0x8B0000);                                    // červené tetování
-    sukGfx.fillRect(2, 16, 4, 8);
-    sukGfx.fillRect(26, 16, 4, 8);
-    sukGfx.fillCircle(16, 10, 2);  // třetí oko
-    sukGfx.generateTexture('sukuna_placeholder', 32, 48); sukGfx.destroy();
 
     // --- Cleave vlna (800×20) — červená vlna po podlaze ---
     const cleaveGfx = g();

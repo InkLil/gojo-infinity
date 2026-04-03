@@ -20,23 +20,43 @@ class Level3Scene extends Phaser.Scene {
     this.fallingPlats  = []; // padající platformy
 
     // -------------------------------------------------------
-    // POZADÍ — noční Tokio
+    // PARALLAX POZADÍ — noční Tokio (3 vrstvy)
+    // Vrstva back   = vzdálené budovy na světlém pozadí (nejpomalejší)
+    // Vrstva middle = detailnější budovy s neonovou oblohou
+    // Vrstva fore   = uliční scéna s neonem (nejrychlejší, dekorativní)
+    //
+    // Všechny vrstvy jsou 272 px vysoké → scale = 450/272 ≈ 1.655
+    // back = 112px, middle = 256px, fore = 688px — Phaser je tilinguje
     // -------------------------------------------------------
-    this.add.rectangle(width / 2, height / 2, width, height, 0x0a0a1a);
+    const bgScale = height / 272;
 
-    // Budovy v pozadí
-    [[50,200,60,250],[150,180,80,270],[280,200,50,250],[420,160,70,290],
-     [580,190,60,260],[700,170,80,280],[760,200,40,250]].forEach(([x,w,bw,bh]) => {
-      this.add.rectangle(x, height - bh/2, bw, bh, 0x1a1a2a);
-    });
+    // Vrstva back — vzdálené budovy, světlé béžové pozadí
+    this.bg1 = this.add.tileSprite(0, 0, width, height, 'tokyo_back')
+      .setOrigin(0, 0)
+      .setTileScale(bgScale, bgScale);
 
-    // Neonové světla
-    this.add.rectangle(80,  220, 5, 80,  0x00BFFF, 0.7);
-    this.add.rectangle(250, 180, 5, 60,  0xFF2D55, 0.7);
-    this.add.rectangle(450, 200, 5, 90,  0x9B59B6, 0.7);
-    this.add.rectangle(650, 170, 5, 100, 0x00BFFF, 0.7);
-    this.add.rectangle(200, 340, 60, 4,  0xFF2D55, 0.5);
-    this.add.rectangle(500, 310, 50, 4,  0x9B59B6, 0.5);
+    // Vrstva middle — tmavé siluety budov s oranžovou oblohou
+    this.bg2 = this.add.tileSprite(0, 0, width, height, 'tokyo_middle')
+      .setOrigin(0, 0)
+      .setTileScale(bgScale, bgScale);
+
+    // Vrstva foreground — kybernetická ulice, neonové nápisy
+    // Umístíme ji ve spodní části obrazovky (ulice = dole)
+    this.bg3 = this.add.tileSprite(0, height - Math.round(688 * bgScale * 0.5), width, Math.round(272 * bgScale), 'tokyo_fore')
+      .setOrigin(0, 0.5)
+      .setTileScale(bgScale, bgScale)
+      .setAlpha(0.6);  // lehce průhledná — nezakrývá herní prvky
+
+    // -------------------------------------------------------
+    // HUDBA — kybernetická smyčka pro Tokio level
+    // OGG má přednost (lepší podpora v prohlížečích), MP3 jako záloha
+    // loop: true = opakuje se donekonečna
+    // -------------------------------------------------------
+    this.music = this.sound.add('cyberpunk_music', { loop: true, volume: 0.4 });
+    this.music.play();
+
+    // Zastavíme hudbu při opuštění scény
+    this.events.once('shutdown', () => { if (this.music) this.music.stop(); });
 
     // -------------------------------------------------------
     // STATICKÉ PLATFORMY — střechy budov
@@ -341,7 +361,12 @@ class Level3Scene extends Phaser.Scene {
   // -------------------------------------------------------
   // UPDATE
   // -------------------------------------------------------
-  update() {
+  update(time, delta) {
+    // Parallax — Tokio, 3 vrstvy
+    this.bg1.tilePositionX += 3  * (delta / 1000);   // vzdálené budovy — 3 px/s
+    this.bg2.tilePositionX += 10 * (delta / 1000);   // střední budovy — 10 px/s
+    this.bg3.tilePositionX += 25 * (delta / 1000);   // ulice — 25 px/s
+
     this.gojo.update();
     this.hud.update(this.score);
 
