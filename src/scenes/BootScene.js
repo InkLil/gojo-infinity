@@ -13,6 +13,9 @@ class BootScene extends Phaser.Scene {
     this.load.spritesheet('sukuna_spritesheet', 'assets/sprites/sukuna_spritesheet.png', { frameWidth: 32, frameHeight: 48 });
     this.load.image('gojo_portrait', 'assets/sprites/gojo_portrait.png');
 
+    // --- Menu pozadí (800×450 px — přesná velikost hry) ---
+    this.load.image('menu_background', 'assets/backgrounds/menu_background.png');
+
     // --- Pozadí Level 1 — vesnice (496×272 px) ---
     this.load.image('village_bg1', 'assets/backgrounds/village/Background_1.png');
     this.load.image('village_bg2', 'assets/backgrounds/village/Background_2.png');

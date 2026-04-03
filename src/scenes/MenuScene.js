@@ -10,8 +10,11 @@ class MenuScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    // Tmavé pozadí s fialovým nádechem
-    this.add.rectangle(width / 2, height / 2, width, height, 0x0a0a1a);
+    // Menu pozadí — obrázek přesně 800×450 px
+    this.add.image(width / 2, height / 2, 'menu_background');
+
+    // Tmavý overlay pro čitelnost textu
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45);
 
     // Logo hry
     this.add.text(width / 2, height / 2 - 80, "GOJO'S INFINITY", {
