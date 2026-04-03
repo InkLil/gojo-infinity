@@ -47,6 +47,7 @@ class Level2Scene extends Phaser.Scene {
     this.hud = new HUD(this, this.gojo);
 
     // --- Skupiny nepřátel ---
+    this.sukunaGroup  = this.physics.add.group(); // skupina pro Sukunu (kvůli overlap callbacku)
     this.smallCurses = this.physics.add.group();
     this.largeCurses = this.physics.add.group();
     this.sorcerers   = this.physics.add.group();
@@ -134,14 +135,16 @@ class Level2Scene extends Phaser.Scene {
     this.sukuna = new Sukuna(this, x, y);
     this.physics.add.collider(this.sukuna, this.platforms);
 
-    // Sukuna kontaktní poškození
-    this.physics.add.overlap(this.gojo, this.sukuna, (g, s) => {
+    // Sukuna kontaktní poškození — použijeme sukunaGroup kvůli správnému pořadí callback argumentů
+    this.sukunaGroup.add(this.sukuna);
+
+    this.physics.add.overlap(this.gojo, this.sukunaGroup, (g, s) => {
       g.takeDamage(s.damage);
     });
 
     // Duté fialové na Sukunu
-    this.physics.add.overlap(this.hollowPurples, this.sukuna, (b, s) => {
-      s.takeDamage(3); // Hollow Purple = 3 damage na Sukunu
+    this.physics.add.overlap(this.hollowPurples, this.sukunaGroup, (b, s) => {
+      if (s.active) s.takeDamage(3);
     });
   }
 
