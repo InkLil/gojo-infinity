@@ -102,6 +102,14 @@ class BootScene extends Phaser.Scene {
     projGfx.fillStyle(0xFF4500); projGfx.fillCircle(6, 6, 6);
     projGfx.generateTexture('sorcerer_proj', 12, 12); projGfx.destroy();
 
+    // --- Boss placeholder (70×70) — tmavě fialový, červené oči ---
+    const bossGfx = g();
+    bossGfx.fillStyle(0x2D0057); bossGfx.fillCircle(35, 38, 32);
+    bossGfx.fillStyle(0xFF0000); bossGfx.fillCircle(24, 28, 6); bossGfx.fillCircle(46, 28, 6);
+    bossGfx.fillStyle(0x9B59B6); bossGfx.fillCircle(35, 20, 12); // koruna
+    bossGfx.fillStyle(0xFF0000); bossGfx.fillRect(22, 44, 26, 5); // ústa
+    bossGfx.generateTexture('boss_placeholder', 70, 70); bossGfx.destroy();
+
     // --- Sukuna / α1 placeholder (32×48) ---
     // Bílé kimono, černý obi, tmavé vlasy, červené tetování (GDD paleta)
     const sukGfx = g();

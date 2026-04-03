@@ -7,14 +7,14 @@ class Sukuna extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    // --- Statistiky (GDD spec) ---
-    this.hp          = 8;
-    this.maxHp       = 8;
-    this.damage      = 2;       // kontaktní poškození
-    this.speed       = 60;      // pomalý ale hrozivý
-    this.attackDelay = 4000;    // 4 sekundy mezi útoky
-    this.attackPhase = 0;       // 0 = Cleave, 1 = Shrine (střídá)
-    this.isPhase2    = false;   // HP ≤ 3 = fáze 2 (zrychlení)
+    // --- Statistiky ---
+    this.hp          = 12;      // zvýšeno z 8
+    this.maxHp       = 12;
+    this.damage      = 3;       // zvýšeno z 2
+    this.speed       = 70;
+    this.attackDelay = 3000;    // zkráceno z 4000
+    this.attackPhase = 0;
+    this.isPhase2    = false;   // HP ≤ 5 = fáze 2
 
     this.setCollideWorldBounds(true);
     this.body.setSize(28, 44);
@@ -76,14 +76,13 @@ class Sukuna extends Phaser.Physics.Arcade.Sprite {
     this.scene.time.delayedCall(150, () => { if (this.active) this.clearTint(); });
 
     // Fáze 2: HP ≤ 3 — zrychlení, kratší cooldown
-    if (this.hp <= 3 && !this.isPhase2) {
+    if (this.hp <= 5 && !this.isPhase2) {
       this.isPhase2 = true;
-      this.speed = 110;
-      // Zkrátí cooldown na 2 sekundy (GDD spec)
+      this.speed = 140;
       if (this.attackTimer) {
         this.attackTimer.remove();
         this.attackTimer = this.scene.time.addEvent({
-          delay: 2000,
+          delay: 1500,
           loop: true,
           callback: this.doAttack,
           callbackScope: this
