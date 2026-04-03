@@ -90,6 +90,22 @@ class HUD {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(depth + 2).setVisible(false);
   }
 
+  // Zobrazí varování uprostřed obrazovky (Sukuna spawn, fáze 2)
+  showWarning(text, color = 0xFF0000) {
+    const hex = '#' + color.toString(16).padStart(6, '0');
+    const msg = this.scene.add.text(400, 100, text, {
+      fontSize: '18px', fill: hex, fontFamily: 'monospace', fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 3
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(50);
+
+    // Blikání + zmizení po 2.5 sekundách
+    this.scene.tweens.add({
+      targets: msg, alpha: { from: 1, to: 0 },
+      duration: 2500, ease: 'Power2',
+      onComplete: () => msg.destroy()
+    });
+  }
+
   // Voláno každý snímek z Level1Scene.update()
   update(score = 0) {
     const now   = this.scene.time.now;
