@@ -40,7 +40,7 @@ class HUD {
 
     // -- Nekonečno [Z] — vlevo --
     scene.add.text(16, barY - 14, '[Z] Nekonečno', {
-      fontSize: '10px', fill: '#C4B5FD', fontFamily: 'monospace'
+      fontSize: '10px', fill: '#111111', fontFamily: 'monospace'
     }).setScrollFactor(0).setDepth(depth);
 
     scene.add.rectangle(16, barY, barW, barH, 0x222222)
@@ -55,7 +55,7 @@ class HUD {
 
     // -- Duté fialové [X] — hned vedle, s mezerou 160px --
     scene.add.text(176, barY - 14, '[X] Duté fialové', {
-      fontSize: '10px', fill: '#C4B5FD', fontFamily: 'monospace'
+      fontSize: '10px', fill: '#111111', fontFamily: 'monospace'
     }).setScrollFactor(0).setDepth(depth);
 
     scene.add.rectangle(176, barY, barW, barH, 0x222222)
@@ -86,7 +86,7 @@ class HUD {
     // INFINITY AKTIVNÍ — zpráva uprostřed (blikne při aktivaci)
     // -------------------------------------------------------
     this.infinityMsg = scene.add.text(400, 80, '∞ NEKONEČNO AKTIVNÍ ∞', {
-      fontSize: '16px', fill: '#C4B5FD', fontFamily: 'monospace', fontStyle: 'bold'
+      fontSize: '16px', fill: '#111111', fontFamily: 'monospace', fontStyle: 'bold'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(depth + 2).setVisible(false);
   }
 
