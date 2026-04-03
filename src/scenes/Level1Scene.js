@@ -1,9 +1,6 @@
 // Level1Scene.js
-// Level 1 — Japonská vesnice
-// Fáze 2: pohyb, platformy
-// Fáze 3: HUD, schopnosti
-// Fáze 4: nepřátelé (malá kletba, čaroděj), skóre
-// Fáze 6+: finální design, mince, brána
+// Level 1 — Japonská vesnice — FINÁLNÍ DESIGN (Fáze 6)
+// GDD: 4 malé kletby, 2 čarodějové, zlaté mince, bonus srdíčko, zlatá brána
 
 class Level1Scene extends Phaser.Scene {
   constructor() {
@@ -15,101 +12,152 @@ class Level1Scene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    this.score = 0;
+    this.score         = 0;
     this.levelComplete = false;
 
-    // --- Pozadí ---
+    // -------------------------------------------------------
+    // POZADÍ — japonská vesnice, jasný den (#87CEEB)
+    // -------------------------------------------------------
     this.add.rectangle(width / 2, height / 2, width, height, 0x87CEEB);
 
-    // --- Platformy ---
+    // Dekorativní mraky
+    this.add.ellipse(120, 80,  120, 40, 0xFFFFFF, 0.8);
+    this.add.ellipse(400, 60,  160, 45, 0xFFFFFF, 0.7);
+    this.add.ellipse(680, 90,  100, 35, 0xFFFFFF, 0.8);
+
+    // -------------------------------------------------------
+    // PLATFORMY — tutoriál skoku (jednoduché → obtížnější)
+    // -------------------------------------------------------
     this.platforms = this.physics.add.staticGroup();
+
+    // Podlaha
     const ground = this.platforms.create(width / 2, height - 16, 'ground');
     ground.setDisplaySize(width, 32).refreshBody();
 
-    this.platforms.create(150, 320, 'platform');
-    this.platforms.create(350, 260, 'platform');
-    this.platforms.create(560, 190, 'platform');
+    // Platforma 1 — nízká vlevo (dosažitelná jedním skokem)
+    this.platforms.create(200, 330, 'platform');
+    // Platforma 2 — střední (dosažitelná z platformy 1)
+    this.platforms.create(390, 265, 'platform');
+    // Platforma 3 — vyšší vpravo (double jump nebo skok z 2)
+    this.platforms.create(570, 195, 'platform');
+    // Platforma 4 — vede k bráně
     this.platforms.create(700, 300, 'platform');
+    // Tajná platforma — schovaná výše, vede k bonus srdíčku
+    this.platforms.create(290, 165, 'platform');
 
-    // --- Gojo ---
-    this.gojo = new Gojo(this, 80, height - 80);
+    // -------------------------------------------------------
+    // GOJO
+    // -------------------------------------------------------
+    this.gojo = new Gojo(this, 60, height - 80);
     this.physics.add.collider(this.gojo, this.platforms);
 
-    // --- Cílová brána ---
-    this.gate = this.physics.add.staticSprite(760, height - 46, 'gate');
-    this.physics.add.overlap(this.gojo, this.gate, this.completeLevel, null, this);
+    // -------------------------------------------------------
+    // HUD
+    // -------------------------------------------------------
+    this.hud = new HUD(this, this.gojo, 1);
 
-    // --- HUD ---
-    this.hud = new HUD(this, this.gojo);
-
-    // --- Skupiny nepřátel ---
+    // -------------------------------------------------------
+    // NEPŘÁTELÉ — GDD Level 1: 4 malé kletby, 2 čarodějové
+    // -------------------------------------------------------
     this.smallCurses = this.physics.add.group();
-    this.largeCurses = this.physics.add.group();
     this.sorcerers   = this.physics.add.group();
+    this.largeCurses = this.physics.add.group(); // prázdná (Level 1 nemá velké kletby)
 
-    // GDD Level 1: 4 malé kletby, 2 čarodějové
-    this.spawnSmallCurse(280,  height - 60);
-    this.spawnSmallCurse(460,  height - 60);
-    this.spawnSmallCurse(330,  235);          // na platformě y=260
-    this.spawnSmallCurse(540,  165);          // na platformě y=190
+    // Malé kletby — postupně obtížnější pozice
+    this.smallCurses.add(new SmallCurse(this, 280,  height - 60)); // 1. na zemi hned na začátku
+    this.smallCurses.add(new SmallCurse(this, 200,  305));         // 2. na platformě 1
+    this.smallCurses.add(new SmallCurse(this, 500,  height - 60)); // 3. na zemi uprostřed
+    this.smallCurses.add(new SmallCurse(this, 390,  240));         // 4. na platformě 2
 
-    this.spawnSorcerer(180,   295);           // na platformě y=320
-    this.spawnSorcerer(680,   275);           // na platformě y=300
+    // Čarodějové — na vyvýšených platformách
+    this.sorcerers.add(new Sorcerer(this, 590, 170));  // na platformě 3, střílí dolů
+    this.sorcerers.add(new Sorcerer(this, 720, 275));  // na platformě 4, hlídá bránu
 
-    // Kolize nepřátel s platformami (aby stáli na zemi)
     this.physics.add.collider(this.smallCurses, this.platforms);
-    this.physics.add.collider(this.largeCurses, this.platforms);
     this.physics.add.collider(this.sorcerers,   this.platforms);
 
-    // --- Projektily ---
-    this.hollowPurples      = this.physics.add.group();
+    // -------------------------------------------------------
+    // MINCE — vedou hráče správným směrem
+    // -------------------------------------------------------
+    this.coins = this.physics.add.staticGroup();
+
+    // Řada na zemi — navigace doprava
+    [130, 160, 190].forEach(x => this.coins.create(x, height - 50, 'coin'));
+    // Na platformě 1
+    [170, 200, 230].forEach(x => this.coins.create(x, 310, 'coin'));
+    // Přechod na platformu 2
+    [330, 360, 390].forEach(x => this.coins.create(x, 245, 'coin'));
+    // Na zemi za platformou
+    [450, 480, 510].forEach(x => this.coins.create(x, height - 50, 'coin'));
+    // Na platformě 3 a 4
+    [550, 580].forEach(x => this.coins.create(x, 175, 'coin'));
+    [670, 700].forEach(x => this.coins.create(x, 280, 'coin'));
+
+    // Sběr mince
+    this.physics.add.overlap(this.gojo, this.coins, (gojo, coin) => {
+      coin.destroy();
+      this.score += 50;
+      this._showPoints(coin.x, coin.y, '+50');
+    });
+
+    // -------------------------------------------------------
+    // BONUS SRDÍČKO — skryté na tajné platformě (y=165)
+    // Vyžaduje double jump nebo skok z platformy 1
+    // -------------------------------------------------------
+    this.bonusHeart = this.physics.add.staticSprite(290, 140, 'bonus_heart');
+
+    this.physics.add.overlap(this.gojo, this.bonusHeart, (gojo, heart) => {
+      heart.destroy();
+      gojo.gainLife();         // +1 HP (max 3)
+      this._showPoints(heart.x, heart.y, '❤ +1');
+    });
+
+    // -------------------------------------------------------
+    // CÍLOVÁ BRÁNA — na konci za čarodějem
+    // -------------------------------------------------------
+    this.gate = this.physics.add.staticSprite(765, height - 46, 'gate');
+    this.physics.add.overlap(this.gojo, this.gate, this.completeLevel, null, this);
+
+    // Šipka ukazující na bránu (jako hint)
+    this.add.text(750, height - 115, '▼ CÍLE', {
+      fontSize: '11px', fill: '#FFD700', fontFamily: 'monospace', fontStyle: 'bold'
+    }).setOrigin(0.5);
+
+    // -------------------------------------------------------
+    // PROJEKTILY
+    // -------------------------------------------------------
+    this.hollowPurples       = this.physics.add.group();
     this.sorcererProjectiles = this.physics.add.group();
 
-    // Události z entit
     this.events.on('fireHollowPurple', this.spawnHollowPurple, this);
     this.events.on('sorcererShoot',    this.spawnSorcererProj, this);
     this.events.on('enemyKilled',      this.onEnemyKilled,     this);
 
-    // --- Kolize: Gojo × nepřátelé (kontaktní poškození) ---
-    this.physics.add.overlap(this.gojo, this.smallCurses, (gojo, enemy) => {
-      gojo.takeDamage(enemy.damage);
-    });
-    this.physics.add.overlap(this.gojo, this.largeCurses, (gojo, enemy) => {
-      gojo.takeDamage(enemy.damage);
-    });
-    this.physics.add.overlap(this.gojo, this.sorcerers, (gojo, enemy) => {
-      gojo.takeDamage(enemy.damage);
-    });
+    // Kolize: Gojo × nepřátelé
+    this.physics.add.overlap(this.gojo, this.smallCurses, (g, e) => g.takeDamage(e.damage));
+    this.physics.add.overlap(this.gojo, this.sorcerers,   (g, e) => g.takeDamage(e.damage));
+    this.physics.add.overlap(this.gojo, this.sorcererProjectiles, (g, p) => { p.destroy(); g.takeDamage(1); });
 
-    // --- Kolize: Gojo × projektil čaroděje ---
-    this.physics.add.overlap(this.gojo, this.sorcererProjectiles, (gojo, proj) => {
-      proj.destroy();
-      gojo.takeDamage(1);
-    });
-
-    // --- Kolize: Duté fialové × nepřátelé (zabití) ---
-    this.physics.add.overlap(this.hollowPurples, this.smallCurses, (ball, enemy) => {
-      enemy.takeDamage(10);  // okamžitě zabije
-    });
-    this.physics.add.overlap(this.hollowPurples, this.largeCurses, (ball, enemy) => {
-      enemy.takeDamage(10);
-    });
-    this.physics.add.overlap(this.hollowPurples, this.sorcerers, (ball, enemy) => {
-      enemy.takeDamage(10);
-    });
+    // Kolize: Duté fialové × nepřátelé
+    this.physics.add.overlap(this.hollowPurples, this.smallCurses, (b, e) => { if (e.active) e.takeDamage(10); });
+    this.physics.add.overlap(this.hollowPurples, this.sorcerers,   (b, e) => { if (e.active) e.takeDamage(10); });
   }
 
-  // --- Spawn helpers ---
-  spawnSmallCurse(x, y) {
-    const enemy = new SmallCurse(this, x, y);
-    this.smallCurses.add(enemy);
-    return enemy;
+  // --- Skóre za nepřítele ---
+  onEnemyKilled(x, y, points) {
+    this.score += points;
+    this._showPoints(x, y, '+' + points);
   }
 
-  spawnSorcerer(x, y) {
-    const enemy = new Sorcerer(this, x, y);
-    this.sorcerers.add(enemy);
-    return enemy;
+  // --- Plovoucí text (mince, body, srdíčko) ---
+  _showPoints(x, y, text) {
+    const txt = this.add.text(x, y - 10, text, {
+      fontSize: '14px', fill: '#FFD700', fontFamily: 'monospace', fontStyle: 'bold'
+    }).setDepth(20);
+    this.tweens.add({
+      targets: txt, y: y - 40, alpha: 0, duration: 800,
+      onComplete: () => txt.destroy()
+    });
   }
 
   // --- Projektily ---
@@ -127,24 +175,6 @@ class Level1Scene extends Phaser.Scene {
     this.time.delayedCall(4000, () => { if (proj && proj.active) proj.destroy(); });
   }
 
-  // --- Skóre za zabití nepřítele ---
-  onEnemyKilled(x, y, points) {
-    this.score += points;
-
-    // Krátký text "+100" kde nepřítel zemřel
-    const txt = this.add.text(x, y - 10, '+' + points, {
-      fontSize: '14px', fill: '#FFD700', fontFamily: 'monospace', fontStyle: 'bold'
-    }).setDepth(20);
-
-    this.tweens.add({
-      targets: txt,
-      y: y - 40,
-      alpha: 0,
-      duration: 800,
-      onComplete: () => txt.destroy()
-    });
-  }
-
   // --- Dokončení levelu ---
   completeLevel() {
     if (this.levelComplete) return;
@@ -157,15 +187,10 @@ class Level1Scene extends Phaser.Scene {
     this.gojo.update();
     this.hud.update(this.score);
 
-    // Update nepřátel
     this.smallCurses.getChildren().forEach(e => { if (e.active) e.update(); });
-    this.largeCurses.getChildren().forEach(e => { if (e.active) e.update(); });
 
-    // Čistění projektilů mimo obrazovku
-    [this.hollowPurples, this.sorcererProjectiles].forEach(group => {
-      group.getChildren().forEach(p => {
-        if (p.x < -50 || p.x > 850) p.destroy();
-      });
+    [this.hollowPurples, this.sorcererProjectiles].forEach(grp => {
+      grp.getChildren().forEach(p => { if (p.x < -50 || p.x > 850) p.destroy(); });
     });
   }
 }

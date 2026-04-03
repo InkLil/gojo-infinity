@@ -102,6 +102,19 @@ class BootScene extends Phaser.Scene {
     projGfx.fillStyle(0xFF4500); projGfx.fillCircle(6, 6, 6);
     projGfx.generateTexture('sorcerer_proj', 12, 12); projGfx.destroy();
 
+    // --- Mince (16×16) ---
+    const coinGfx = g();
+    coinGfx.fillStyle(0xFFD700); coinGfx.fillCircle(8, 8, 7);
+    coinGfx.fillStyle(0xFFA500); coinGfx.fillCircle(8, 8, 4);
+    coinGfx.generateTexture('coin', 16, 16); coinGfx.destroy();
+
+    // --- Bonus srdíčko (16×16) ---
+    const heartGfx = g();
+    heartGfx.fillStyle(0xFF0055);
+    heartGfx.fillCircle(5, 5, 4); heartGfx.fillCircle(11, 5, 4);
+    heartGfx.fillTriangle(1, 7, 15, 7, 8, 15);
+    heartGfx.generateTexture('bonus_heart', 16, 16); heartGfx.destroy();
+
     // --- Boss placeholder (70×70) — tmavě fialový, červené oči ---
     const bossGfx = g();
     bossGfx.fillStyle(0x2D0057); bossGfx.fillCircle(35, 38, 32);
