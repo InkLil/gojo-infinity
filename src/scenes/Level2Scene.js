@@ -49,16 +49,17 @@ class Level2Scene extends Phaser.Scene {
     const ground = this.platforms.create(width / 2, height - 16, 'ground_dark');
     ground.setDisplaySize(width, 32).refreshBody();
 
-    this.platforms.create(250,  320, 'platform_dark'); // vlevo nízká (posunutá od spawnu)
-    this.platforms.create(580,  185, 'platform_dark'); // vpravo vysoko
-    this.platforms.create(280,  170, 'platform_dark'); // tajná (bonus srdíčko)
+    this.platforms.create(250,  320, 'mossy_platform_tile').setDisplaySize(200, 28).refreshBody(); // vlevo nízká
+    this.platforms.create(580,  185, 'mossy_platform_tile').setDisplaySize(200, 28).refreshBody(); // vpravo vysoko
+    this.platforms.create(280,  170, 'mossy_platform_tile').setDisplaySize(200, 28).refreshBody(); // tajná (bonus srdíčko)
 
     // -------------------------------------------------------
     // POHYBUJÍCÍ SE PLATFORMY (3 ks — GDD spec)
     // Phaser dynamic body: immovable=true, gravity=false, pohyb přes velocityX
     // -------------------------------------------------------
     const makeMovingPlat = (x, y, minX, maxX) => {
-      const p = this.physics.add.image(x, y, 'platform_dark');
+      const p = this.physics.add.image(x, y, 'mossy_platform_tile');
+      p.setDisplaySize(200, 28);
       p.setImmovable(true);
       p.body.setAllowGravity(false);
       p.body.setVelocityX(70);

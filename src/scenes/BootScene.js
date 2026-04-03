@@ -37,6 +37,16 @@ class BootScene extends Phaser.Scene {
       'assets/sounds/cyberpunk-street.ogg',
       'assets/sounds/cyberpunk-street.mp3'
     ]);
+
+    // --- Platform textury (z tilesetů) ---
+    this.load.image('village_platform_tile', 'assets/tilesets/village_platform_tile.png');
+    this.load.image('mossy_platform_tile',   'assets/tilesets/mossy_platform_tile.png');
+    this.load.image('cave_platform_tile',    'assets/tilesets/cave_platform_tile.png');
+
+    // --- Čaroděj (Blue Wizard spritesheet 96×96, 40 framů) ---
+    this.load.spritesheet('wizard_spritesheet', 'assets/sprites/wizard_spritesheet.png', {
+      frameWidth: 96, frameHeight: 96
+    });
   }
 
   create() {
@@ -74,6 +84,9 @@ class BootScene extends Phaser.Scene {
     A.create({ key: 'sukuna_shrine', frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 13, end: 18 }), frameRate: 14, repeat: 0  });
     A.create({ key: 'sukuna_hit',    frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 19, end: 20 }), frameRate: 10, repeat: 0  });
     A.create({ key: 'sukuna_death',  frames: A.generateFrameNumbers('sukuna_spritesheet', { start: 21, end: 25 }), frameRate: 8,  repeat: 0  });
+    // Čaroděj (Blue Wizard): idle 0-19 | walk 20-39
+    A.create({ key: 'wizard_idle', frames: A.generateFrameNumbers('wizard_spritesheet', { start: 0,  end: 19 }), frameRate: 10, repeat: -1 });
+    A.create({ key: 'wizard_walk', frames: A.generateFrameNumbers('wizard_spritesheet', { start: 20, end: 39 }), frameRate: 12, repeat: -1 });
   }
 
   _makeTextures() {

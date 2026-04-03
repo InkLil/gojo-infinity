@@ -47,15 +47,15 @@ class Level1Scene extends Phaser.Scene {
     ground.setDisplaySize(width, 32).refreshBody();
 
     // Platforma 1 — nízká vlevo (dosažitelná jedním skokem)
-    this.platforms.create(200, 330, 'platform');
+    this.platforms.create(200, 330, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
     // Platforma 2 — střední (dosažitelná z platformy 1)
-    this.platforms.create(390, 265, 'platform');
+    this.platforms.create(390, 265, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
     // Platforma 3 — vyšší vpravo (double jump nebo skok z 2)
-    this.platforms.create(570, 195, 'platform');
+    this.platforms.create(570, 195, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
     // Platforma 4 — vede k bráně
-    this.platforms.create(700, 300, 'platform');
+    this.platforms.create(700, 300, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
     // Tajná platforma — schovaná výše, vede k bonus srdíčku
-    this.platforms.create(290, 165, 'platform');
+    this.platforms.create(290, 165, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
 
     // -------------------------------------------------------
     // GOJO

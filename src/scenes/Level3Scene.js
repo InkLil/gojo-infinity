@@ -66,8 +66,8 @@ class Level3Scene extends Phaser.Scene {
     const ground = this.platforms.create(width / 2, height - 16, 'ground_dark');
     ground.setDisplaySize(width, 32).refreshBody();
 
-    this.platforms.create(270, 340, 'platform_dark');  // nízká (posunutá od spawnu)
-    this.platforms.create(580, 190, 'platform_dark');  // vysoká uprostřed
+    this.platforms.create(270, 340, 'cave_platform_tile').setDisplaySize(200, 28).refreshBody(); // nízká
+    this.platforms.create(580, 190, 'cave_platform_tile').setDisplaySize(200, 28).refreshBody(); // vysoká
 
     // -------------------------------------------------------
     // GOJO — musí být PŘED padajícími platformami (kolize reference)
@@ -197,7 +197,8 @@ class Level3Scene extends Phaser.Scene {
   // PADAJÍCÍ PLATFORMY
   // -------------------------------------------------------
   _makeFallingPlat(x, y) {
-    const p = this.physics.add.image(x, y, 'platform_dark');
+    const p = this.physics.add.image(x, y, 'cave_platform_tile');
+    p.setDisplaySize(200, 28);
     p.setImmovable(true);
     p.body.setAllowGravity(false);
     p._triggered = false;
@@ -229,7 +230,8 @@ class Level3Scene extends Phaser.Scene {
   // VERTIKÁLNÍ VÝTAHY
   // -------------------------------------------------------
   _makeElevator(x, y, minY, maxY) {
-    const p = this.physics.add.image(x, y, 'platform_dark');
+    const p = this.physics.add.image(x, y, 'cave_platform_tile');
+    p.setDisplaySize(200, 28);
     p.setImmovable(true);
     p.body.setAllowGravity(false);
     p.body.setVelocityY(50);

@@ -3,16 +3,22 @@
 
 class Sorcerer extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
-    super(scene, x, y, 'sorcerer');
+    super(scene, x, y, 'wizard_spritesheet');
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this.hp     = 2;
     this.damage = 1;
 
+    // Wizard frame je 96×96, ale postava zabírá střed → zobrazíme menší
+    this.setDisplaySize(40, 40);
+
     this.setCollideWorldBounds(true);
-    this.body.setImmovable(true); // nestojí — nedá se odstrčit
-    this.body.setSize(24, 36);
+    this.body.setImmovable(true);
+    this.body.setSize(22, 32);
+    this.body.setOffset(37, 52); // vycentrovat fyzické tělo na postavu ve framu
+
+    this.play('wizard_idle');
 
     // Střílení každé 3 sekundy
     this.shootTimer = scene.time.addEvent({
