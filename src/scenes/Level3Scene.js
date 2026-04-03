@@ -50,6 +50,12 @@ class Level3Scene extends Phaser.Scene {
     this.platforms.create(580, 190, 'platform_dark');  // vysoká uprostřed
 
     // -------------------------------------------------------
+    // GOJO — musí být PŘED padajícími platformami (kolize reference)
+    // -------------------------------------------------------
+    this.gojo = new Gojo(this, 60, height - 80);
+    this.physics.add.collider(this.gojo, this.platforms);
+
+    // -------------------------------------------------------
     // PADAJÍCÍ PLATFORMY (GDD spec) — zmizí 2s po kontaktu
     // -------------------------------------------------------
     this._makeFallingPlat(310, 280);
@@ -59,14 +65,8 @@ class Level3Scene extends Phaser.Scene {
     // -------------------------------------------------------
     // VERTIKÁLNÍ VÝTAHY (GDD spec) — pohyb nahoru-dolů
     // -------------------------------------------------------
-    this._makeElevator(200, 260, 180, 360);  // vlevo — střední výška
-    this._makeElevator(700, 230, 160, 330);  // vpravo
-
-    // -------------------------------------------------------
-    // GOJO
-    // -------------------------------------------------------
-    this.gojo = new Gojo(this, 60, height - 80);
-    this.physics.add.collider(this.gojo, this.platforms);
+    this._makeElevator(200, 260, 180, 360);
+    this._makeElevator(700, 230, 160, 330);
     this.elevators.forEach(e => this.physics.add.collider(this.gojo, e));
 
     // -------------------------------------------------------
@@ -135,6 +135,7 @@ class Level3Scene extends Phaser.Scene {
     this.shrineArrows        = this.physics.add.group();
     this.bossProjectiles     = this.physics.add.group();
 
+    this.events.on('showMessage',      this._showPoints,         this);
     this.events.on('fireHollowPurple', this.spawnHollowPurple,   this);
     this.events.on('sorcererShoot',    this.spawnSorcererProj,   this);
     this.events.on('enemyKilled',      this.onEnemyKilled,       this);

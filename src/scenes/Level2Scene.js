@@ -144,6 +144,7 @@ class Level2Scene extends Phaser.Scene {
     this.cleaveWaves         = this.physics.add.group();
     this.shrineArrows        = this.physics.add.group();
 
+    this.events.on('showMessage',      this._showPoints,        this);
     this.events.on('fireHollowPurple', this.spawnHollowPurple,  this);
     this.events.on('sorcererShoot',    this.spawnSorcererProj,  this);
     this.events.on('enemyKilled',      this.onEnemyKilled,      this);

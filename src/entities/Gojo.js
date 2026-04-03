@@ -24,7 +24,8 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
     // --- HP ---
     this.hp = 3;
     this.maxHp = 3;
-    this.invincible = false; // krátká neporazitelnost po zásahu (blikání)
+    this.invincible = true; // spawn invincibility — 1 sekunda na začátku levelu
+    scene.time.delayedCall(1000, () => { this.invincible = false; });
 
     // --- Schopnosti — časy (ms timestamps) ---
     // Phaser.time.now = aktuální čas v ms od spuštění hry
@@ -52,13 +53,15 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
   }
 
   // --- Veřejná metoda: zásah nepřítelem ---
-  // --- Veřejná metoda: získání života po dokončení levelu ---
+  // --- Veřejná metoda: získání života ---
   gainLife() {
     if (this.hp < this.maxHp) {
       this.hp++;
-      // Zlatý záblesk jako vizuální potvrzení
       this.setTint(0xFFD700);
-      this.scene.time.delayedCall(400, () => { this.clearTint(); });
+      this.scene.time.delayedCall(400, () => { if (this.active) this.clearTint(); });
+    } else {
+      // Již plné HP — ukáž MAX!
+      this.scene.events.emit('showMessage', this.x, this.y - 20, 'MAX!', '#FFD700');
     }
   }
 

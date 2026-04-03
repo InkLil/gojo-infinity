@@ -132,6 +132,7 @@ class Level1Scene extends Phaser.Scene {
     this.events.on('fireHollowPurple', this.spawnHollowPurple, this);
     this.events.on('sorcererShoot',    this.spawnSorcererProj, this);
     this.events.on('enemyKilled',      this.onEnemyKilled,     this);
+    this.events.on('showMessage',      this._showPoints,       this);
 
     // Kolize: Gojo × nepřátelé
     this.physics.add.overlap(this.gojo, this.smallCurses, (g, e) => g.takeDamage(e.damage));
