@@ -65,7 +65,7 @@ class Level3Scene extends Phaser.Scene {
     // -------------------------------------------------------
     // HUD
     // -------------------------------------------------------
-    this.hud = new HUD(this, this.gojo);
+    this.hud = new HUD(this, this.gojo, 3);
 
     // -------------------------------------------------------
     // SKUPINY NEPŘÁTEL

@@ -44,7 +44,7 @@ class Level2Scene extends Phaser.Scene {
     this.physics.add.overlap(this.gojo, this.gate, this.completeLevel, null, this);
 
     // --- HUD ---
-    this.hud = new HUD(this, this.gojo);
+    this.hud = new HUD(this, this.gojo, 2);
 
     // --- Skupiny nepřátel ---
     this.sukunaGroup  = this.physics.add.group(); // skupina pro Sukunu (kvůli overlap callbacku)
@@ -114,10 +114,6 @@ class Level2Scene extends Phaser.Scene {
       }
     });
 
-    // HUD text pro Level 2
-    this.add.text(400, 16, 'Level 2', {
-      fontSize: '14px', fill: '#F0F0FF', fontFamily: 'monospace'
-    }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(10);
   }
 
   // --- Spawn helpers ---

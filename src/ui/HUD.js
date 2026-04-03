@@ -4,7 +4,7 @@
 // i když se kamera později pohybuje s Gojem
 
 class HUD {
-  constructor(scene, gojo) {
+  constructor(scene, gojo, levelNumber = 1) {
     this.scene = scene;
     this.gojo  = gojo;
 
@@ -78,7 +78,7 @@ class HUD {
     // -------------------------------------------------------
     // ČÍSLO LEVELU — střed nahoře
     // -------------------------------------------------------
-    scene.add.text(400, 16, 'Level 1', {
+    scene.add.text(400, 16, 'Level ' + levelNumber, {
       fontSize: '14px', fill: '#F0F0FF', fontFamily: 'monospace'
     }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(depth);
 
