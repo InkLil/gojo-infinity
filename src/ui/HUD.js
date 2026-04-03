@@ -34,40 +34,37 @@ class HUD {
     // -------------------------------------------------------
     // COOLDOWN BARY — levý dolní roh
     // -------------------------------------------------------
-    const barY  = 410;
+    const barY  = 430;
     const barW  = 110;
     const barH  = 10;
 
-    // -- Nekonečno [Z] — modrá/fialová --
+    // -- Nekonečno [Z] — vlevo --
     scene.add.text(16, barY - 14, '[Z] Nekonečno', {
       fontSize: '10px', fill: '#C4B5FD', fontFamily: 'monospace'
     }).setScrollFactor(0).setDepth(depth);
 
-    // pozadí baru (tmavé)
     scene.add.rectangle(16, barY, barW, barH, 0x222222)
       .setOrigin(0, 0.5).setScrollFactor(0).setDepth(depth);
 
-    // výplň baru (fialová)
     this.infinityBar = scene.add.rectangle(16, barY, barW, barH, 0x6B21A8)
       .setOrigin(0, 0.5).setScrollFactor(0).setDepth(depth + 1);
 
-    // nápis READY
     this.infinityReady = scene.add.text(130, barY - 5, 'READY', {
       fontSize: '9px', fill: '#4ADE80', fontFamily: 'monospace'
     }).setScrollFactor(0).setDepth(depth + 1).setVisible(true);
 
-    // -- Duté fialové [X] — tmavá fialová --
-    scene.add.text(16, barY + 18, '[X] Duté fialové', {
+    // -- Duté fialové [X] — hned vedle, s mezerou 160px --
+    scene.add.text(176, barY - 14, '[X] Duté fialové', {
       fontSize: '10px', fill: '#C4B5FD', fontFamily: 'monospace'
     }).setScrollFactor(0).setDepth(depth);
 
-    scene.add.rectangle(16, barY + 32, barW, barH, 0x222222)
+    scene.add.rectangle(176, barY, barW, barH, 0x222222)
       .setOrigin(0, 0.5).setScrollFactor(0).setDepth(depth);
 
-    this.purpleBar = scene.add.rectangle(16, barY + 32, barW, barH, 0x9B59B6)
+    this.purpleBar = scene.add.rectangle(176, barY, barW, barH, 0x9B59B6)
       .setOrigin(0, 0.5).setScrollFactor(0).setDepth(depth + 1);
 
-    this.purpleReady = scene.add.text(130, barY + 27, 'READY', {
+    this.purpleReady = scene.add.text(290, barY - 5, 'READY', {
       fontSize: '9px', fill: '#4ADE80', fontFamily: 'monospace'
     }).setScrollFactor(0).setDepth(depth + 1).setVisible(true);
 
