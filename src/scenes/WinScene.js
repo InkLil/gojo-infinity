@@ -10,7 +10,11 @@ class WinScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    this.add.rectangle(width / 2, height / 2, width, height, 0x0a0a1a);
+    this.add.image(width / 2, height / 2, 'end_vin_background')
+      .setDisplaySize(width, height);
+
+    // Tmavý overlay pro čitelnost textu
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45);
 
     this.add.text(width / 2, height / 2 - 60, 'VÍTĚZSTVÍ!', {
       fontSize: '42px',

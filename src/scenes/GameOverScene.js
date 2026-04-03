@@ -10,8 +10,11 @@ class GameOverScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    // Červený overlay (tmavší červená)
-    this.add.rectangle(width / 2, height / 2, width, height, 0x1a0000);
+    this.add.image(width / 2, height / 2, 'end_lost_background')
+      .setDisplaySize(width, height);
+
+    // Tmavý overlay pro čitelnost textu
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.5);
 
     this.add.text(width / 2, height / 2 - 60, 'GAME OVER', {
       fontSize: '42px',
