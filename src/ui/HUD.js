@@ -71,7 +71,7 @@ class HUD {
     // -------------------------------------------------------
     // SCREENSHOT tlačítko — vedle skóre vpravo nahoře
     // -------------------------------------------------------
-    const ssBtn = scene.add.text(755, 16, '[📸]', {
+    const ssBtn = scene.add.text(680, 16, '[📸]', {
       fontSize: '13px', fill: '#F0F0FF', fontFamily: 'monospace'
     }).setOrigin(1, 0).setScrollFactor(0).setDepth(depth).setInteractive({ useHandCursor: true });
 
