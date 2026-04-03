@@ -1,86 +1,114 @@
 // Level1Scene.js
 // Level 1 — Japonská vesnice
-// Fáze 2: Gojo pohyb, skok, platformy
+// Fáze 2: Gojo pohyb, platformy
+// Fáze 3: HUD, schopnosti (Nekonečno, Duté fialové)
 // Fáze 6+: nepřátelé, mince, brána, finální design
 
 class Level1Scene extends Phaser.Scene {
   constructor() {
     super({ key: 'Level1Scene' });
+    this.score = 0;
   }
 
   preload() {
-    // Vytvoříme placeholder textury programaticky — žádné externí soubory
-    // Gojo: bílý obdélník 32×48 px (barva #F0F0FF z GDD barevné palety)
+    // --- Placeholder textury (programaticky generované) ---
+
+    // Gojo: bílý obdélník 32×48 px
     const gojoGfx = this.make.graphics({ x: 0, y: 0, add: false });
-    gojoGfx.fillStyle(0xF0F0FF); // Gojo bílá
+    gojoGfx.fillStyle(0xF0F0FF);          // bílá
     gojoGfx.fillRect(0, 0, 32, 48);
-    // Fialový proužek = tmavé brýle (orientační detail)
-    gojoGfx.fillStyle(0x1E1E3F);
+    gojoGfx.fillStyle(0x1E1E3F);          // tmavé brýle
     gojoGfx.fillRect(6, 12, 20, 8);
-    // Oranžový odznak na hrudi
-    gojoGfx.fillStyle(0xEA580C);
+    gojoGfx.fillStyle(0xEA580C);          // oranžový odznak
     gojoGfx.fillCircle(10, 28, 4);
     gojoGfx.generateTexture('gojo_placeholder', 32, 48);
     gojoGfx.destroy();
 
-    // Platforma: hnědé dřevo (#92400E z GDD Level 1 barvy)
+    // Platforma: hnědé dřevo
     const platGfx = this.make.graphics({ x: 0, y: 0, add: false });
     platGfx.fillStyle(0x92400E);
     platGfx.fillRect(0, 0, 200, 20);
+    platGfx.fillStyle(0x78350F);          // tmavší horní okraj
+    platGfx.fillRect(0, 0, 200, 4);
     platGfx.generateTexture('platform', 200, 20);
     platGfx.destroy();
 
-    // Podlaha: tráva (#4ADE80 z GDD Level 1)
+    // Podlaha: tráva
     const groundGfx = this.make.graphics({ x: 0, y: 0, add: false });
     groundGfx.fillStyle(0x4ADE80);
     groundGfx.fillRect(0, 0, 800, 32);
+    groundGfx.fillStyle(0x166534);        // tmavší spodní část
+    groundGfx.fillRect(0, 6, 800, 26);
     groundGfx.generateTexture('ground', 800, 32);
     groundGfx.destroy();
+
+    // Duté fialové: fialová koule 24px
+    const purpleGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    purpleGfx.fillStyle(0x6B21A8);
+    purpleGfx.fillCircle(12, 12, 12);
+    purpleGfx.fillStyle(0xC4B5FD);        // světlé jádro
+    purpleGfx.fillCircle(12, 12, 6);
+    purpleGfx.generateTexture('hollow_purple', 24, 24);
+    purpleGfx.destroy();
   }
 
   create() {
     const { width, height } = this.scale;
+    this.score = 0;
 
-    // --- Pozadí — světlá obloha Level 1 ---
+    // --- Pozadí ---
     this.add.rectangle(width / 2, height / 2, width, height, 0x87CEEB);
 
-    // --- Podlaha ---
-    // staticGroup = pevné objekty s fyzikou, které se nehýbou
+    // --- Platformy ---
     this.platforms = this.physics.add.staticGroup();
 
     const ground = this.platforms.create(width / 2, height - 16, 'ground');
     ground.setDisplaySize(width, 32).refreshBody();
 
-    // --- Platformy (různé výšky — tutoriál skoku) ---
-    // Phaser souřadnice: y=0 je nahoře, y=450 je dole
-    this.platforms.create(150, 320, 'platform'); // nízká vlevo
-    this.platforms.create(350, 260, 'platform'); // střední uprostřed
-    this.platforms.create(560, 190, 'platform'); // vyšší vpravo
-    this.platforms.create(700, 300, 'platform'); // nízká vpravo
+    this.platforms.create(150, 320, 'platform');
+    this.platforms.create(350, 260, 'platform');
+    this.platforms.create(560, 190, 'platform');
+    this.platforms.create(700, 300, 'platform');
 
     // --- Gojo ---
-    // Přidáme soubor Gojo.js jako třídu — musí být načten v index.html
     this.gojo = new Gojo(this, 80, height - 80);
-
-    // Kolize Gojo s platformami a podlahou
     this.physics.add.collider(this.gojo, this.platforms);
 
-    // --- HUD (placeholder) ---
-    this.add.text(16, 16, 'Level 1 — Japonská vesnice', {
-      fontSize: '14px',
-      fill: '#111827',
-      fontFamily: 'monospace'
-    });
+    // --- HUD ---
+    this.hud = new HUD(this, this.gojo);
 
-    this.add.text(16, 36, '← → pohyb  |  Mezerník / ↑ skok (2×)', {
-      fontSize: '11px',
-      fill: '#333333',
-      fontFamily: 'monospace'
+    // --- Projektily Dutého fialového ---
+    // physics.add.group = pohybující se objekty s fyzikou
+    this.hollowPurples = this.physics.add.group();
+
+    // Posloucháme událost z Gojo.js když hráč stiskne X
+    this.events.on('fireHollowPurple', this.spawnHollowPurple, this);
+  }
+
+  // Spawnuje fialovou kouli při stisku X
+  spawnHollowPurple(x, y, facingLeft) {
+    const ball = this.hollowPurples.create(x, y, 'hollow_purple');
+
+    // Vypne gravitaci pro projektil — letí horizontálně
+    ball.body.setAllowGravity(false);
+
+    // Rychlost: 600 px/s vlevo nebo vpravo podle směru Gojo
+    const speed = 600;
+    ball.setVelocityX(facingLeft ? -speed : speed);
+
+    // Zničí se po 3 sekundách (kdyby minul okraj)
+    this.time.delayedCall(3000, () => {
+      if (ball && ball.active) ball.destroy();
     });
   }
 
   update() {
-    // Volá Gojo.update() každý snímek — zde řídí pohyb a skok
     this.gojo.update();
+    this.hud.update(this.score);
+
+    // Zničení projektilů mimo obrazovku
+    this.hollowPurples.getChildren().forEach(ball => {
+      if (ball.x < -50 || ball.x > 850) ball.destroy();
+    });
   }
 }

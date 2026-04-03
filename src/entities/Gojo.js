@@ -1,75 +1,143 @@
 // Gojo.js
 // Hlavní postava — Satoru Gojo
 // Fáze 2: pohyb, skok, dvojitý skok
-// Fáze 3+: animace, schopnosti (Nekonečno, Duté fialové)
+// Fáze 3: schopnosti (Nekonečno Z, Duté fialové X), HP systém
 
 class Gojo extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
-    super(scene, x, y, 'gojo_placeholder'); // placeholder texture — viz Level1Scene.preload
+    super(scene, x, y, 'gojo_placeholder');
 
-    // Přidej Gojo do scény a fyzikálního světa
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    // --- Fyzika ---
-    this.setCollideWorldBounds(true); // nesmí vypadnout z obrazovky
-    this.body.setSize(28, 44);        // hitbox mírně menší než sprite (32×48)
-    this.body.setOffset(2, 4);        // vycentrování hitboxu
+    this.setCollideWorldBounds(true);
+    this.body.setSize(28, 44);
+    this.body.setOffset(2, 4);
 
-    // --- Proměnné pohybu ---
-    this.speed = 200;        // GDD: 200 px/s
-    this.jumpVelocity = -480; // výška skoku ~120 px (výpočet: sqrt(2 * 800 * 120) ≈ 438, trochu více pro pohodlí)
-    this.maxJumps = 2;       // GDD: dvojitý skok povolen
-    this.jumpsLeft = 2;      // kolik skoků zbývá
+    // --- Pohyb ---
+    this.speed = 200;
+    this.jumpVelocity = -480;
+    this.maxJumps = 2;
+    this.jumpsLeft = 2;
+    this.jumpPressed = false;
+
+    // --- HP ---
+    this.hp = 3;
+    this.maxHp = 3;
+    this.invincible = false; // krátká neporazitelnost po zásahu (blikání)
+
+    // --- Schopnosti — časy (ms timestamps) ---
+    // Phaser.time.now = aktuální čas v ms od spuštění hry
+    this.infinityReadyAt     = 0; // kdy bude Nekonečno znovu připraveno
+    this.infinityActiveUntil = 0; // do kdy je štít aktivní
+    this.infinityDuration    = 3000; // 3 sekundy aktivní
+    this.infinityCooldownMs  = 8000; // 8 sekund cooldown (GDD spec)
+
+    this.purpleReadyAt      = 0;    // kdy bude Duté fialové připraveno
+    this.purpleCooldownMs   = 5000; // 5 sekund cooldown (GDD spec)
 
     // --- Klávesy ---
-    this.cursors = scene.input.keyboard.createCursorKeys(); // šipky + Space
-    this.wasd = scene.input.keyboard.addKeys({              // WASD alternativa
-      up: Phaser.Input.Keyboard.KeyCodes.W,
-      left: Phaser.Input.Keyboard.KeyCodes.A,
+    this.cursors  = scene.input.keyboard.createCursorKeys();
+    this.wasd     = scene.input.keyboard.addKeys({
+      up:    Phaser.Input.Keyboard.KeyCodes.W,
+      left:  Phaser.Input.Keyboard.KeyCodes.A,
       right: Phaser.Input.Keyboard.KeyCodes.D
     });
-    this.jumpKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-    this.upKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
+    this.zKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z);
+    this.xKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.X);
 
-    // jumpPressed: zabrání opakovanému skoku při držení klávesy
-    this.jumpPressed = false;
+    // Zabraňuje opakování při držení klávesy
+    this.zPressed    = false;
+    this.xPressed    = false;
+  }
+
+  // --- Veřejná metoda: zásah nepřítelem ---
+  takeDamage(amount = 1) {
+    // Nekonečno blokuje veškeré poškození
+    if (this.infinityActive || this.invincible) return;
+
+    this.hp = Math.max(0, this.hp - amount);
+
+    // Krátká neporazitelnost po zásahu (1 sekunda), zamezí opakovanému poškození
+    this.invincible = true;
+    this.scene.time.delayedCall(1000, () => { this.invincible = false; });
+
+    // Červené bliknutí při zásahu
+    this.setTint(0xFF0000);
+    this.scene.time.delayedCall(200, () => {
+      if (!this.infinityActive) this.clearTint();
+    });
+
+    // Smrt
+    if (this.hp <= 0) {
+      this.scene.scene.start('GameOverScene');
+    }
   }
 
   update() {
-    const onGround = this.body.blocked.down; // je Gojo na zemi nebo platformě?
+    const now      = this.scene.time.now;
+    const onGround = this.body.blocked.down;
 
-    // --- Reset počtu skoků při přistání ---
+    // --- Reset skoků při přistání ---
     if (onGround) {
       this.jumpsLeft = this.maxJumps;
     }
 
-    // --- Pohyb vlevo / vpravo ---
+    // --- Pohyb ---
     const goLeft  = this.cursors.left.isDown  || this.wasd.left.isDown;
     const goRight = this.cursors.right.isDown || this.wasd.right.isDown;
 
     if (goLeft) {
       this.setVelocityX(-this.speed);
-      this.setFlipX(true);   // otočení spriteu doleva
+      this.setFlipX(true);
     } else if (goRight) {
       this.setVelocityX(this.speed);
-      this.setFlipX(false);  // výchozí směr = doprava
+      this.setFlipX(false);
     } else {
-      this.setVelocityX(0);  // zastavení
+      this.setVelocityX(0);
     }
 
-    // --- Skok (jednoduchý + dvojitý) ---
-    const jumpDown = this.cursors.up.isDown || this.jumpKey.isDown || this.wasd.up.isDown;
+    // --- Skok ---
+    const jumpDown = this.cursors.up.isDown || this.cursors.space.isDown || this.wasd.up.isDown;
 
     if (jumpDown && !this.jumpPressed && this.jumpsLeft > 0) {
       this.setVelocityY(this.jumpVelocity);
       this.jumpsLeft--;
-      this.jumpPressed = true; // zablokuj dokud klávesa není puštěna
+      this.jumpPressed = true;
+    }
+    if (!jumpDown) this.jumpPressed = false;
+
+    // =====================================================
+    // SCHOPNOSTI
+    // =====================================================
+
+    // --- Nekonečno [Z] — štít ---
+    this.infinityActive = now < this.infinityActiveUntil;
+
+    if (this.zKey.isDown && !this.zPressed && now >= this.infinityReadyAt) {
+      // Aktivace štítu
+      this.infinityActiveUntil = now + this.infinityDuration;
+      this.infinityReadyAt     = now + this.infinityCooldownMs;
+      this.zPressed = true;
+    }
+    if (!this.zKey.isDown) this.zPressed = false;
+
+    // Vizuál: fialový tint při aktivním štítu
+    if (this.infinityActive) {
+      // Pulsující efekt — střídáme dva odstíny fialové
+      const pulse = Math.sin(now * 0.01) > 0 ? 0xC4B5FD : 0x9B59B6;
+      this.setTint(pulse);
+    } else if (!this.invincible) {
+      this.clearTint();
     }
 
-    // Uvolnění klávesy = povolení dalšího skoku
-    if (!jumpDown) {
-      this.jumpPressed = false;
+    // --- Duté fialové [X] — výstřel ---
+    if (this.xKey.isDown && !this.xPressed && now >= this.purpleReadyAt) {
+      // Informujeme scénu ať spawne projektil (scéna řídí fyziku projektilů)
+      this.scene.events.emit('fireHollowPurple', this.x, this.y, this.flipX);
+      this.purpleReadyAt = now + this.purpleCooldownMs;
+      this.xPressed = true;
     }
+    if (!this.xKey.isDown) this.xPressed = false;
   }
 }
