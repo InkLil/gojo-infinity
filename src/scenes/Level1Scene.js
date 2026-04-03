@@ -42,6 +42,16 @@ class Level1Scene extends Phaser.Scene {
     groundGfx.generateTexture('ground', 800, 32);
     groundGfx.destroy();
 
+    // Cílová brána: zlatý obdélník (placeholder — finální sprite v Fázi 6)
+    const gateGfx = this.make.graphics({ x: 0, y: 0, add: false });
+    gateGfx.fillStyle(0xFFD700);           // zlatá
+    gateGfx.fillRect(0, 0, 40, 60);
+    gateGfx.fillStyle(0xFFA500);           // tmavší rámeček
+    gateGfx.lineStyle(3, 0xFFA500);
+    gateGfx.strokeRect(2, 2, 36, 56);
+    gateGfx.generateTexture('gate', 40, 60);
+    gateGfx.destroy();
+
     // Duté fialové: fialová koule 24px
     const purpleGfx = this.make.graphics({ x: 0, y: 0, add: false });
     purpleGfx.fillStyle(0x6B21A8);
@@ -77,12 +87,32 @@ class Level1Scene extends Phaser.Scene {
     // --- HUD ---
     this.hud = new HUD(this, this.gojo);
 
+    // --- Cílová brána — konec levelu ---
+    // Umístěna vpravo na poslední platformě (x=700, y=300)
+    this.gate = this.physics.add.staticSprite(750, height - 46, 'gate');
+
+    // Když se Gojo dotkne brány → dokončení levelu
+    this.physics.add.overlap(this.gojo, this.gate, this.completeLevel, null, this);
+
     // --- Projektily Dutého fialového ---
     // physics.add.group = pohybující se objekty s fyzikou
     this.hollowPurples = this.physics.add.group();
 
     // Posloucháme událost z Gojo.js když hráč stiskne X
     this.events.on('fireHollowPurple', this.spawnHollowPurple, this);
+  }
+
+  // Dokončení levelu — +1 život, přechod na Level 2
+  completeLevel() {
+    if (this.levelComplete) return; // zabraňuje dvojímu spuštění
+    this.levelComplete = true;
+
+    this.gojo.gainLife(); // +1 srdíčko (max 3)
+
+    // Krátká pauza před přechodem (hráč vidí zlatý záblesk)
+    this.time.delayedCall(800, () => {
+      this.scene.start('Level2Scene');
+    });
   }
 
   // Spawnuje fialovou kouli při stisku X

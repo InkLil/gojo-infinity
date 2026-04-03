@@ -52,6 +52,16 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
   }
 
   // --- Veřejná metoda: zásah nepřítelem ---
+  // --- Veřejná metoda: získání života po dokončení levelu ---
+  gainLife() {
+    if (this.hp < this.maxHp) {
+      this.hp++;
+      // Zlatý záblesk jako vizuální potvrzení
+      this.setTint(0xFFD700);
+      this.scene.time.delayedCall(400, () => { this.clearTint(); });
+    }
+  }
+
   takeDamage(amount = 1) {
     // Nekonečno blokuje veškeré poškození
     if (this.infinityActive || this.invincible) return;
