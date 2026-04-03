@@ -10,8 +10,9 @@ class MenuScene extends Phaser.Scene {
   create() {
     const { width, height } = this.scale;
 
-    // Menu pozadí — obrázek přesně 800×450 px
-    this.add.image(width / 2, height / 2, 'menu_background');
+    // Menu pozadí — roztažené přesně na velikost hry (800×450)
+    this.add.image(width / 2, height / 2, 'menu_background')
+      .setDisplaySize(width, height);
 
     // Tmavý overlay pro čitelnost textu
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.45);
