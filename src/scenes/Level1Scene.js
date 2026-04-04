@@ -31,18 +31,12 @@ class Level1Scene extends Phaser.Scene {
       .setTileScale(bgScale, bgScale);
 
     // -------------------------------------------------------
-    // DEKORATIVNÍ VRSTVA — stromy a domečky v pozadí (před bg, za platformami)
-    // setDepth zajistí že jsou ZA platformami ale PŘED pozadím
+    // DEKORATIVNÍ VRSTVA — stromy v pozadí
     // -------------------------------------------------------
-    // Domečky
-    this.add.image(620, height - 95, 'medieval_house').setDisplaySize(130, 200).setDepth(1).setAlpha(0.92);
-    this.add.image(150, height - 90, 'medieval_house').setDisplaySize(110, 180).setDepth(1).setAlpha(0.80);
-
-    // Stromy
-    this.add.image(80,  height - 90, 'medieval_tree1').setDisplaySize(70, 110).setDepth(1).setAlpha(0.85);
-    this.add.image(350, height - 85, 'medieval_tree2').setDisplaySize(55, 100).setDepth(1).setAlpha(0.80);
-    this.add.image(520, height - 88, 'medieval_tree1').setDisplaySize(65, 105).setDepth(1).setAlpha(0.88);
-    this.add.image(740, height - 82, 'medieval_tree2').setDisplaySize(50, 95).setDepth(1).setAlpha(0.75);
+    this.add.image(80,  height - 90, 'medieval_tree1').setDisplaySize(70, 110).setAlpha(0.85);
+    this.add.image(350, height - 85, 'medieval_tree2').setDisplaySize(55, 100).setAlpha(0.80);
+    this.add.image(520, height - 88, 'medieval_tree1').setDisplaySize(65, 105).setAlpha(0.88);
+    this.add.image(740, height - 82, 'medieval_tree2').setDisplaySize(50, 95).setAlpha(0.75);
 
     // -------------------------------------------------------
     // PLATFORMY — tutoriál skoku (jednoduché → obtížnější)
@@ -54,15 +48,15 @@ class Level1Scene extends Phaser.Scene {
     ground.setDisplaySize(width, 32).refreshBody();
 
     // Platforma 1 — nízká vlevo (dosažitelná jedním skokem)
-    this.platforms.create(200, 330, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
+    this.platforms.create(200, 330, 'medieval_platform_tile').setDisplaySize(200, 30).refreshBody();
     // Platforma 2 — střední (dosažitelná z platformy 1)
-    this.platforms.create(390, 265, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
+    this.platforms.create(390, 265, 'medieval_platform_tile').setDisplaySize(200, 30).refreshBody();
     // Platforma 3 — vyšší vpravo (double jump nebo skok z 2)
-    this.platforms.create(570, 195, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
+    this.platforms.create(570, 195, 'medieval_platform_tile').setDisplaySize(200, 30).refreshBody();
     // Platforma 4 — vede k bráně
-    this.platforms.create(700, 300, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
+    this.platforms.create(700, 300, 'medieval_platform_tile').setDisplaySize(200, 30).refreshBody();
     // Tajná platforma — schovaná výše, vede k bonus srdíčku
-    this.platforms.create(290, 165, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
+    this.platforms.create(290, 165, 'medieval_platform_tile').setDisplaySize(200, 30).refreshBody();
 
     // -------------------------------------------------------
     // GOJO
