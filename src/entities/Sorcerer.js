@@ -10,13 +10,14 @@ class Sorcerer extends Phaser.Physics.Arcade.Sprite {
     this.hp     = 2;
     this.damage = 1;
 
-    // Wizard frame je 96×96, ale postava zabírá střed → zobrazíme menší
-    this.setDisplaySize(40, 40);
+    // Wizard frame je 96×96 — zvětšíme aby byl viditelný ve hře
+    this.setDisplaySize(72, 72);
 
     this.setCollideWorldBounds(true);
     this.body.setImmovable(true);
-    this.body.setSize(22, 32);
-    this.body.setOffset(37, 52); // vycentrovat fyzické tělo na postavu ve framu
+    // Postava zabírá střed framu — hitbox centrujeme na viditelnou část
+    this.body.setSize(30, 50);
+    this.body.setOffset(21, 14);
 
     this.play('wizard_idle');
 

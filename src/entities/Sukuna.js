@@ -70,6 +70,7 @@ class Sukuna extends Phaser.Physics.Arcade.Sprite {
   }
 
   takeDamage(amount = 1) {
+    if (this._dying) return; // death animace nesmí být přerušena dalším zásahem
     this.hp -= amount;
 
     this.play('sukuna_hit');
