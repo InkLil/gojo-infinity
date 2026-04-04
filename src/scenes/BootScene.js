@@ -39,9 +39,17 @@ class BootScene extends Phaser.Scene {
     ]);
 
     // --- Platform textury (z tilesetů) ---
-    this.load.image('village_platform_tile', 'assets/tilesets/village_platform_tile.png');
-    this.load.image('mossy_platform_tile',   'assets/tilesets/mossy_platform_tile.png');
-    this.load.image('cave_platform_tile',    'assets/tilesets/cave_platform_tile.png');
+    this.load.image('village_platform_tile',   'assets/tilesets/village_platform_tile.png');
+    this.load.image('medieval_platform_tile',  'assets/tilesets/medieval_platform_tile.png');
+    this.load.image('mossy_platform_tile',     'assets/tilesets/mossy_platform_tile.png');
+    this.load.image('cave_platform_tile',      'assets/tilesets/cave_platform_tile.png');
+
+    // --- Level 1 medieval dekorace ---
+    this.load.image('medieval_bg_far',  'assets/backgrounds/medieval_bg_far.png');
+    this.load.image('medieval_bg_near', 'assets/backgrounds/medieval_bg_near.png');
+    this.load.image('medieval_tree1',   'assets/sprites/medieval_tree1.png');
+    this.load.image('medieval_tree2',   'assets/sprites/medieval_tree2.png');
+    this.load.image('medieval_house',   'assets/sprites/medieval_house.png');
 
     // --- Čaroděj (Blue Wizard spritesheet 96×96, 40 framů) ---
     this.load.spritesheet('wizard_spritesheet', 'assets/sprites/wizard_spritesheet.png', {

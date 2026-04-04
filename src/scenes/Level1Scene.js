@@ -1,5 +1,5 @@
 // Level1Scene.js
-// Level 1 — Japonská vesnice — FINÁLNÍ DESIGN (Fáze 6)
+// Level 1 — Středověká vesnice — FINÁLNÍ DESIGN (Fáze 8)
 // GDD: 4 malé kletby, 2 čarodějové, zlaté mince, bonus srdíčko, zlatá brána
 
 class Level1Scene extends Phaser.Scene {
@@ -16,26 +16,33 @@ class Level1Scene extends Phaser.Scene {
     this.levelComplete = false;
 
     // -------------------------------------------------------
-    // PARALLAX POZADÍ — japonská vesnice (2 vrstvy)
-    // TileSprite = Phaser objekt který opakuje obrázek do šířky
-    // Každá vrstva dostane jinou rychlost → vznikne dojem hloubky
-    //
-    // Vrstva 1 (vzdálená) = mraky + světlé nebe → pohybuje se POMALU (8 px/s)
-    // Vrstva 2 (bližší)   = tmavší mraky      → pohybuje se RYCHLEJI (20 px/s)
-    //
-    // scale = 450/272 ≈ 1.655 → natáhne obrázek (272px) na výšku hry (450px)
+    // PARALLAX POZADÍ — středověká vesnice (2 vrstvy)
+    // bg_far  = vzdálené hory + nebe (1334×750 → scale 0.6)
+    // bg_near = zelené kopce u země s průhledným nebem (1334×750)
     // -------------------------------------------------------
-    const bgScale = height / 272;  // 496×272 → škálujeme na výšku hry
+    const bgScale = height / 750;  // 1334×750 → škálujeme na výšku hry
 
-    // Vrstva 1 — vzdálená (světlé mraky, pomalu)
-    this.bg1 = this.add.tileSprite(0, 0, width, height, 'village_bg1')
+    this.bg1 = this.add.tileSprite(0, 0, width, height, 'medieval_bg_far')
       .setOrigin(0, 0)
       .setTileScale(bgScale, bgScale);
 
-    // Vrstva 2 — bližší (modré mraky, rychleji)
-    this.bg2 = this.add.tileSprite(0, 0, width, height, 'village_bg2')
+    this.bg2 = this.add.tileSprite(0, 0, width, height, 'medieval_bg_near')
       .setOrigin(0, 0)
       .setTileScale(bgScale, bgScale);
+
+    // -------------------------------------------------------
+    // DEKORATIVNÍ VRSTVA — stromy a domečky v pozadí (před bg, za platformami)
+    // setDepth zajistí že jsou ZA platformami ale PŘED pozadím
+    // -------------------------------------------------------
+    // Domečky
+    this.add.image(620, height - 95, 'medieval_house').setDisplaySize(130, 200).setDepth(1).setAlpha(0.92);
+    this.add.image(150, height - 90, 'medieval_house').setDisplaySize(110, 180).setDepth(1).setAlpha(0.80);
+
+    // Stromy
+    this.add.image(80,  height - 90, 'medieval_tree1').setDisplaySize(70, 110).setDepth(1).setAlpha(0.85);
+    this.add.image(350, height - 85, 'medieval_tree2').setDisplaySize(55, 100).setDepth(1).setAlpha(0.80);
+    this.add.image(520, height - 88, 'medieval_tree1').setDisplaySize(65, 105).setDepth(1).setAlpha(0.88);
+    this.add.image(740, height - 82, 'medieval_tree2').setDisplaySize(50, 95).setDepth(1).setAlpha(0.75);
 
     // -------------------------------------------------------
     // PLATFORMY — tutoriál skoku (jednoduché → obtížnější)
@@ -47,15 +54,15 @@ class Level1Scene extends Phaser.Scene {
     ground.setDisplaySize(width, 32).refreshBody();
 
     // Platforma 1 — nízká vlevo (dosažitelná jedním skokem)
-    this.platforms.create(200, 330, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
+    this.platforms.create(200, 330, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
     // Platforma 2 — střední (dosažitelná z platformy 1)
-    this.platforms.create(390, 265, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
+    this.platforms.create(390, 265, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
     // Platforma 3 — vyšší vpravo (double jump nebo skok z 2)
-    this.platforms.create(570, 195, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
+    this.platforms.create(570, 195, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
     // Platforma 4 — vede k bráně
-    this.platforms.create(700, 300, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
+    this.platforms.create(700, 300, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
     // Tajná platforma — schovaná výše, vede k bonus srdíčku
-    this.platforms.create(290, 165, 'village_platform_tile').setDisplaySize(200, 22).refreshBody();
+    this.platforms.create(290, 165, 'medieval_platform_tile').setDisplaySize(200, 50).refreshBody();
 
     // -------------------------------------------------------
     // GOJO
@@ -197,10 +204,9 @@ class Level1Scene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    // Parallax scrolling — vzdálená vrstva pomaleji, bližší rychleji
-    // delta = ms od posledního snímku → zajistí stejnou rychlost bez ohledu na FPS
-    this.bg1.tilePositionX += 8  * (delta / 1000);   // 8 px/s
-    this.bg2.tilePositionX += 20 * (delta / 1000);   // 20 px/s
+    // Parallax scrolling — hory pomalu, kopce rychleji
+    this.bg1.tilePositionX += 6  * (delta / 1000);   // 6 px/s — vzdálené hory
+    this.bg2.tilePositionX += 18 * (delta / 1000);   // 18 px/s — zelené kopce
 
     this.gojo.update();
     this.hud.update(this.score);
