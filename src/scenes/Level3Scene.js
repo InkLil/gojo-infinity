@@ -19,6 +19,8 @@ class Level3Scene extends Phaser.Scene {
     this.elevators     = []; // vertikální pohybující se platformy
     this.fallingPlats  = []; // padající platformy
 
+    this.scene.launch('MobileControls');
+
     // -------------------------------------------------------
     // PARALLAX POZADÍ — noční Tokio (3 vrstvy)
     // Vrstva back   = vzdálené budovy na světlém pozadí (nejpomalejší)

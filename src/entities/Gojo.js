@@ -113,8 +113,9 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
     }
 
     // --- Pohyb ---
-    const goLeft  = this.cursors.left.isDown  || this.wasd.left.isDown;
-    const goRight = this.cursors.right.isDown || this.wasd.right.isDown;
+    const mob     = window.mobileInput || {};
+    const goLeft  = this.cursors.left.isDown  || this.wasd.left.isDown  || mob.left;
+    const goRight = this.cursors.right.isDown || this.wasd.right.isDown || mob.right;
 
     if (goLeft) {
       this.setVelocityX(-this.speed);
@@ -127,7 +128,7 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
     }
 
     // --- Skok ---
-    const jumpDown = this.cursors.up.isDown || this.cursors.space.isDown || this.wasd.up.isDown;
+    const jumpDown = this.cursors.up.isDown || this.cursors.space.isDown || this.wasd.up.isDown || mob.jump;
 
     if (jumpDown && !this.jumpPressed && this.jumpsLeft > 0) {
       this.setVelocityY(this.jumpVelocity);
@@ -143,13 +144,13 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
     // --- Nekonečno [Z] — štít ---
     this.infinityActive = now < this.infinityActiveUntil;
 
-    if (this.zKey.isDown && !this.zPressed && now >= this.infinityReadyAt) {
+    if ((this.zKey.isDown || mob.z) && !this.zPressed && now >= this.infinityReadyAt) {
       // Aktivace štítu
       this.infinityActiveUntil = now + this.infinityDuration;
       this.infinityReadyAt     = now + this.infinityCooldownMs;
       this.zPressed = true;
     }
-    if (!this.zKey.isDown) this.zPressed = false;
+    if (!this.zKey.isDown && !mob.z) this.zPressed = false;
 
     // Vizuál: fialový tint při aktivním štítu
     if (this.infinityActive) {
@@ -161,7 +162,7 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
     }
 
     // --- Duté fialové [X] — výstřel ---
-    if (this.xKey.isDown && !this.xPressed && now >= this.purpleReadyAt) {
+    if ((this.xKey.isDown || mob.x) && !this.xPressed && now >= this.purpleReadyAt) {
       this.scene.events.emit('fireHollowPurple', this.x, this.y, this.flipX);
       this.purpleReadyAt = now + this.purpleCooldownMs;
       this.xPressed = true;
@@ -169,7 +170,7 @@ class Gojo extends Phaser.Physics.Arcade.Sprite {
       this.play('gojo_hollow_purple');
       this.once('animationcomplete-gojo_hollow_purple', () => { this._firingAnim = false; });
     }
-    if (!this.xKey.isDown) this.xPressed = false;
+    if (!this.xKey.isDown && !mob.x) this.xPressed = false;
 
     this._playAnimation();
   }

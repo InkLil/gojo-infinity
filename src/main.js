@@ -30,7 +30,8 @@ const config = {
     Level2Scene,
     Level3Scene,
     GameOverScene,
-    WinScene
+    WinScene,
+    MobileControls
   ]
 };
 
