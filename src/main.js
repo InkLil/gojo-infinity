@@ -8,10 +8,10 @@ const config = {
   backgroundColor: '#0a0a1a', // tmavé pozadí (Tokio noční obloha)
 
   // Phaser Scale Manager — přizpůsobí hru oknu prohlížeče
+  parent: 'game',
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    expandParent: true,
   },
 
   // Arcade Physics — jednoduchá fyzika pro plošinovky

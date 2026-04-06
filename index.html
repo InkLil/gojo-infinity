@@ -18,10 +18,10 @@
       overflow: hidden;
     }
 
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    /* Phaser container — přesně pokrývá celý viewport */
+    #game {
+      position: fixed;
+      inset: 0;
     }
 
     canvas {
@@ -60,6 +60,9 @@
   </style>
 </head>
 <body>
+  <!-- Phaser se renderuje sem — fixed, pokrývá celý viewport -->
+  <div id="game"></div>
+
   <!-- Overlay pro portrait režim -->
   <div id="rotate-msg">
     <span>🔄</span>
