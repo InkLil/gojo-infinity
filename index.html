@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Gojo's Infinity</title>
   <style>
     * {
@@ -11,22 +11,61 @@
       box-sizing: border-box;
     }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
       background: #000;
+      overflow: hidden;
+    }
+
+    body {
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
     }
 
     canvas {
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
+
+    /* Overlay "Otoč telefon" — zobrazí se v portrait režimu */
+    #rotate-msg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #0a0a1a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      z-index: 9999;
+      text-align: center;
+    }
+
+    #rotate-msg span {
+      font-size: 64px;
+    }
+
+    #rotate-msg p {
+      font-size: 20px;
+      opacity: 0.8;
+    }
+
+    @media (orientation: portrait) {
+      #rotate-msg { display: flex; }
+    }
   </style>
 </head>
 <body>
+  <!-- Overlay pro portrait režim -->
+  <div id="rotate-msg">
+    <span>🔄</span>
+    <p>Otoč telefon do landscape režimu</p>
+  </div>
+
   <!-- Phaser 3 přes CDN -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 
