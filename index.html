@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Gojo's Infinity</title>
   <style>
     * {
@@ -18,15 +21,10 @@
       overflow: hidden;
     }
 
-    /* Phaser canvas — zabere celý prostor nad ovládáním */
+    /* Phaser container — plná obrazovka */
     #game {
       position: fixed;
       inset: 0;
-    }
-
-    /* Na touch zařízeních #game ustoupí nahoru a uvolní místo pro ovládání */
-    body.touch-device #game {
-      bottom: 80px;
     }
 
     canvas {
@@ -34,56 +32,64 @@
       image-rendering: crisp-edges;
     }
 
-    /* ── Mobilní ovládání ───────────────────────────────── */
+    /* ── Mobilní ovládání — postranní panely ──────────────── */
+    /* Tlačítka jsou na levé a pravé straně, v oblastech kde jsou
+       stejně černé pruhy (hra 16:9, telefon ~20:9).
+       pointer-events: none na wrapperech aby hra šla kliknout skrz střed */
     #mobile-controls {
-      display: none; /* skryto na desktopu */
+      display: none;
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 80px;
-      background: #0a0a1a;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 16px;
+      inset: 0;
+      pointer-events: none;
       z-index: 1000;
+      align-items: center;
+      justify-content: space-between;
     }
 
     body.touch-device #mobile-controls {
       display: flex;
     }
 
-    #mc-left, #mc-right {
+    #mc-left {
       display: flex;
-      gap: 10px;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 10px;
+      pointer-events: all;
+    }
+
+    #mc-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 10px;
+      pointer-events: all;
     }
 
     #mobile-controls button {
-      width: 64px;
-      height: 64px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.35);
-      background: rgba(30, 30, 60, 0.85);
+      background: rgba(20, 20, 50, 0.82);
       color: #fff;
-      font-size: 22px;
+      font-size: 24px;
       line-height: 1;
       cursor: pointer;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
-      transition: background 0.08s;
+      transition: background 0.08s, border-color 0.08s;
     }
 
-    #mobile-controls button.active,
-    #mobile-controls button:active {
-      background: rgba(120, 80, 220, 0.9);
-      border-color: rgba(255,255,255,0.7);
+    #mobile-controls button.active {
+      background: rgba(120, 80, 220, 0.92);
+      border-color: rgba(255,255,255,0.8);
     }
 
-    #btn-z  { background: rgba(76, 29, 149, 0.85); }
-    #btn-x  { background: rgba(131, 24, 67, 0.85); }
-    #btn-jump { background: rgba(20, 83, 45, 0.85); }
+    #btn-z    { background: rgba(76,  29, 149, 0.85); }
+    #btn-x    { background: rgba(131, 24,  67, 0.85); }
+    #btn-jump { background: rgba(20,  83,  45, 0.85); }
 
     /* ── Overlay "Otoč telefon" ─────────────────────────── */
     #rotate-msg {
@@ -110,10 +116,10 @@
   </style>
 </head>
 <body>
-  <!-- Phaser se renderuje sem -->
+  <!-- Phaser se renderuje sem — plná obrazovka -->
   <div id="game"></div>
 
-  <!-- Mobilní ovládání — HTML pruh pod hrou -->
+  <!-- Mobilní ovládání — postranní panely (v černých pruzích po stranách hry) -->
   <div id="mobile-controls">
     <div id="mc-left">
       <button id="btn-left"  data-key="left">←</button>
@@ -165,6 +171,14 @@
 
     if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
       document.body.classList.add('touch-device');
+
+      // Při prvním dotyku požádáme o fullscreen — skryje adresní lištu
+      document.addEventListener('touchstart', function requestFS() {
+        const el = document.documentElement;
+        if (el.requestFullscreen)            el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        document.removeEventListener('touchstart', requestFS);
+      }, { once: true });
 
       document.querySelectorAll('#mobile-controls button').forEach(btn => {
         const key = btn.dataset.key;
