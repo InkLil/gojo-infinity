@@ -18,10 +18,15 @@
       overflow: hidden;
     }
 
-    /* Phaser container — přesně pokrývá celý viewport */
+    /* Phaser canvas — zabere celý prostor nad ovládáním */
     #game {
       position: fixed;
       inset: 0;
+    }
+
+    /* Na touch zařízeních #game ustoupí nahoru a uvolní místo pro ovládání */
+    body.touch-device #game {
+      bottom: 80px;
     }
 
     canvas {
@@ -29,7 +34,58 @@
       image-rendering: crisp-edges;
     }
 
-    /* Overlay "Otoč telefon" — zobrazí se v portrait režimu */
+    /* ── Mobilní ovládání ───────────────────────────────── */
+    #mobile-controls {
+      display: none; /* skryto na desktopu */
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: #0a0a1a;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      z-index: 1000;
+    }
+
+    body.touch-device #mobile-controls {
+      display: flex;
+    }
+
+    #mc-left, #mc-right {
+      display: flex;
+      gap: 10px;
+    }
+
+    #mobile-controls button {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.35);
+      background: rgba(30, 30, 60, 0.85);
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: background 0.08s;
+    }
+
+    #mobile-controls button.active,
+    #mobile-controls button:active {
+      background: rgba(120, 80, 220, 0.9);
+      border-color: rgba(255,255,255,0.7);
+    }
+
+    #btn-z  { background: rgba(76, 29, 149, 0.85); }
+    #btn-x  { background: rgba(131, 24, 67, 0.85); }
+    #btn-jump { background: rgba(20, 83, 45, 0.85); }
+
+    /* ── Overlay "Otoč telefon" ─────────────────────────── */
     #rotate-msg {
       display: none;
       position: fixed;
@@ -45,23 +101,30 @@
       text-align: center;
     }
 
-    #rotate-msg span {
-      font-size: 64px;
-    }
-
-    #rotate-msg p {
-      font-size: 20px;
-      opacity: 0.8;
-    }
+    #rotate-msg span { font-size: 64px; }
+    #rotate-msg p    { font-size: 20px; opacity: 0.8; }
 
     @media (orientation: portrait) {
-      #rotate-msg { display: flex; }
+      body.touch-device #rotate-msg { display: flex; }
     }
   </style>
 </head>
 <body>
-  <!-- Phaser se renderuje sem — fixed, pokrývá celý viewport -->
+  <!-- Phaser se renderuje sem -->
   <div id="game"></div>
+
+  <!-- Mobilní ovládání — HTML pruh pod hrou -->
+  <div id="mobile-controls">
+    <div id="mc-left">
+      <button id="btn-left"  data-key="left">←</button>
+      <button id="btn-right" data-key="right">→</button>
+    </div>
+    <div id="mc-right">
+      <button id="btn-z"    data-key="z">Z</button>
+      <button id="btn-x"    data-key="x">X</button>
+      <button id="btn-jump" data-key="jump">↑</button>
+    </div>
+  </div>
 
   <!-- Overlay pro portrait režim -->
   <div id="rotate-msg">
@@ -95,5 +158,36 @@
 
   <!-- Inicializace hry -->
   <script src="src/main.js"></script>
+
+  <!-- Mobilní ovládání — inicializace -->
+  <script>
+    window.mobileInput = { left: false, right: false, jump: false, z: false, x: false };
+
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+      document.body.classList.add('touch-device');
+
+      document.querySelectorAll('#mobile-controls button').forEach(btn => {
+        const key = btn.dataset.key;
+
+        btn.addEventListener('touchstart', e => {
+          e.preventDefault();
+          window.mobileInput[key] = true;
+          btn.classList.add('active');
+        }, { passive: false });
+
+        btn.addEventListener('touchend', e => {
+          e.preventDefault();
+          window.mobileInput[key] = false;
+          btn.classList.remove('active');
+        }, { passive: false });
+
+        btn.addEventListener('touchcancel', e => {
+          e.preventDefault();
+          window.mobileInput[key] = false;
+          btn.classList.remove('active');
+        }, { passive: false });
+      });
+    }
+  </script>
 </body>
 </html>

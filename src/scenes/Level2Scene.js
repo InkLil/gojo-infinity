@@ -15,8 +15,6 @@ class Level2Scene extends Phaser.Scene {
     this.sukuna        = null;
     this.movingPlats   = []; // pohybující se platformy — aktualizujeme v update()
 
-    this.scene.launch('MobileControls');
-
     // -------------------------------------------------------
     // PARALLAX POZADÍ — temný les (3 vrstvy)
     // Vrstva 1 = vzdálené mlhavé stromy (nejpomalejší)

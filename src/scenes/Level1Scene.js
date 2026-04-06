@@ -15,8 +15,6 @@ class Level1Scene extends Phaser.Scene {
     this.score         = 0;
     this.levelComplete = false;
 
-    this.scene.launch('MobileControls');
-
     // -------------------------------------------------------
     // PARALLAX POZADÍ — středověká vesnice (2 vrstvy)
     // bg_far  = vzdálené hory + nebe (1334×750 → scale 0.6)
